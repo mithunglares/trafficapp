@@ -33,6 +33,48 @@
       --shadow:        0 4px 24px rgba(59,111,240,0.08);
       --r:             16px;
     }
+
+    /* ── Dark Mode ───────────────────────────────────── */
+    [data-theme="dark"] {
+      --bg:            #0F172A;
+      --card:          #1E293B;
+      --primary:       #60A5FA;
+      --primary-light: #1E3A5F;
+      --good:          #4ADE80;
+      --warn:          #FBBF24;
+      --danger:        #F87171;
+      --text:          #F1F5F9;
+      --muted:         #94A3B8;
+      --border:        #334155;
+      --shadow:        0 4px 24px rgba(0,0,0,0.4);
+    }
+    [data-theme="dark"] input[type=text],
+    [data-theme="dark"] input[type=number],
+    [data-theme="dark"] input[type=time],
+    [data-theme="dark"] input[type=password] { background: #0F172A !important; color: #F1F5F9 !important; border-color: #334155 !important; }
+    [data-theme="dark"] select { background: #0F172A !important; color: #F1F5F9 !important; border-color: #334155 !important; }
+    [data-theme="dark"] .route-chip { background: #1E293B; }
+    [data-theme="dark"] .route-chip.best-route { background: #0F2B1E; }
+    [data-theme="dark"] .setup-note,
+    [data-theme="dark"] .route-detail,
+    [data-theme="dark"] .traffic-context { background: #0F172A; border-color: #334155; }
+    [data-theme="dark"] .chat-messages { background: #0F172A; }
+    [data-theme="dark"] .msg-bot { background: #1E293B; }
+    [data-theme="dark"] .ac-dropdown { background: #1E293B; border-color: #334155; }
+    [data-theme="dark"] .ac-item:hover, [data-theme="dark"] .ac-item.active { background: #0F172A; }
+    [data-theme="dark"] .rc-delay.light    { background: #14532D; color: #4ADE80; }
+    [data-theme="dark"] .rc-delay.moderate { background: #451A03; color: #FDE047; }
+    [data-theme="dark"] .rc-delay.heavy    { background: #450A0A; color: #FCA5A5; }
+    [data-theme="dark"] .fuel-item { background: #0F172A; border-color: #334155; }
+    [data-theme="dark"] .fuel-result { background: #1E3A5F; }
+    [data-theme="dark"] .metro-tip { background: #2D1B69; border-color: #7C3AED; color: #C4B5FD; }
+    [data-theme="dark"] .weather-alert.rain  { background: #1E3A5F; border-color: #3B82F6; color: #93C5FD; }
+    [data-theme="dark"] .weather-alert.clear { background: #0F2B1E; border-color: #22C55E; color: #4ADE80; }
+    [data-theme="dark"] .bt-best-time { background: #0F2B1E; color: #4ADE80; }
+    [data-theme="dark"] .fav-chip { background: #1E3A5F; }
+    [data-theme="dark"] .history-item { background: #0F172A; border-color: #334155; }
+    [data-theme="dark"] .leaveby-result { background: #1E3A5F; border-color: #3B82F6; color: #93C5FD; }
+
     body {
       font-family: 'Inter', sans-serif;
       background: var(--bg); color: var(--text);
@@ -197,23 +239,53 @@
     }
 
     /* Route chips */
-    .routes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin-bottom: 14px; }
+    .routes-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
     .route-chip {
       border: 2px solid var(--border); border-radius: 13px;
-      padding: 13px 10px; text-align: center; background: #FAFBFF;
+      padding: 12px 14px; background: #FAFBFF;
+      display: flex; align-items: flex-start; gap: 14px; text-align: left;
     }
     .route-chip.best-route { border-color: var(--good); background: #F0FDF4; }
-    .rc-label { font-size: 0.68rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 5px; }
-    .rc-time  { font-size: 1.05rem; font-weight: 700; color: var(--text); }
-    .route-chip.best-route .rc-time { color: var(--good); }
-    .rc-dist  { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
-    .rc-via   {
-      font-size: 0.62rem; color: var(--muted); margin-top: 3px;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      max-width: 100%; line-height: 1.3;
+    /* Left column — metrics */
+    .rc-left {
+      flex: 0 0 auto; width: 94px; display: flex; flex-direction: column;
+      align-items: center; gap: 4px; text-align: center;
+      border-right: 1px solid var(--border); padding-right: 12px;
     }
-    .route-chip.best-route .rc-via { color: #15803D; }
-    .rc-best  { font-size: 0.65rem; font-weight: 700; color: var(--good); margin-top: 3px; }
+    .rc-badge {
+      font-size: 0.58rem; font-weight: 700; letter-spacing: 0.3px; padding: 2px 8px;
+      border-radius: 20px; text-transform: uppercase;
+    }
+    .rc-badge.fastest   { background: #DCFCE7; color: #15803D; }
+    .rc-badge.slower    { background: #FEF9C3; color: #A16207; }
+    .rc-badge.much-slower { background: #FEE2E2; color: #B91C1C; }
+    .rc-time  { font-size: 1.3rem; font-weight: 800; color: var(--text); line-height: 1.1; }
+    .rc-time .rc-unit { font-size: 0.65rem; font-weight: 500; display: block; }
+    .route-chip.best-route .rc-time { color: var(--good); }
+    .rc-dist  { font-size: 0.65rem; color: var(--muted); }
+    .rc-delay {
+      font-size: 0.6rem; font-weight: 600; padding: 2px 6px;
+      border-radius: 10px; text-align: center; line-height: 1.4;
+    }
+    .rc-delay.light    { background: #DCFCE7; color: #15803D; }
+    .rc-delay.moderate { background: #FEF9C3; color: #92400E; }
+    .rc-delay.heavy    { background: #FEE2E2; color: #B91C1C; }
+    /* Right column — route path */
+    .rc-right { flex: 1; min-width: 0; }
+    .rc-desc {
+      font-size: 0.8rem; font-weight: 700; color: var(--text);
+      margin-bottom: 7px; line-height: 1.3;
+    }
+    .route-chip.best-route .rc-desc { color: #166534; }
+    .rc-waypoints { display: flex; flex-direction: column; gap: 3px; }
+    .rc-wp {
+      font-size: 0.75rem; color: var(--muted); display: flex;
+      align-items: baseline; gap: 5px; line-height: 1.35;
+    }
+    .route-chip.best-route .rc-wp { color: #374151; }
+    .rc-wp-dot { color: var(--primary); font-size: 0.65rem; flex-shrink: 0; }
+    .rc-wp-dist { font-size: 0.65rem; color: var(--muted); opacity: 0.7; margin-left: auto; white-space: nowrap; }
+    .rc-wp-none { font-size: 0.72rem; color: var(--muted); font-style: italic; }
 
     /* Route detail panel */
     .route-detail {
@@ -335,10 +407,132 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* ── Dark Toggle ───────────── */
+    .dark-toggle {
+      width: 38px; height: 38px; border-radius: 11px;
+      background: var(--primary-light); color: var(--primary);
+      border: 1.5px solid var(--border); font-size: 18px; cursor: pointer;
+      display: grid; place-items: center; transition: transform 0.2s;
+      flex-shrink: 0;
+    }
+    .dark-toggle:hover { transform: scale(1.12); }
+
+    /* ── Favourites ────────────── */
+    .fav-section {
+      border-top: 1px solid var(--border); margin-top: 14px;
+      padding-top: 12px;
+    }
+    .fav-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .fav-label { font-size: 0.7rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
+    .fav-save-btn {
+      padding: 4px 11px; border-radius: 20px; background: #FFF7ED;
+      color: #C2410C; border: 1.5px solid #FED7AA; font-size: 0.71rem;
+      font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.2s;
+    }
+    .fav-save-btn:hover { background: #FFEDD5; }
+    .fav-strip { display: flex; gap: 7px; flex-wrap: wrap; min-height: 28px; }
+    .fav-chip {
+      display: flex; align-items: center; gap: 4px;
+      padding: 5px 10px 5px 9px; border-radius: 20px;
+      background: var(--primary-light); color: var(--primary);
+      font-size: 0.72rem; font-weight: 600; cursor: pointer;
+      border: 1.5px solid transparent; transition: all 0.18s;
+    }
+    .fav-chip:hover { border-color: var(--primary); }
+    .fav-chip-label { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .fav-chip-del { color: var(--muted); font-size: 0.82rem; line-height: 1; flex-shrink: 0; }
+    .fav-chip-del:hover { color: var(--danger); }
+    .fav-empty { font-size: 0.72rem; color: var(--muted); font-style: italic; }
+
+    /* ── Weather Alert ─────────── */
+    .weather-alert {
+      border-radius: var(--r); padding: 12px 16px; margin-bottom: 14px;
+      width: 100%; max-width: 580px;
+      display: none; align-items: flex-start; gap: 12px;
+      font-size: 0.82rem; line-height: 1.55;
+    }
+    .weather-alert.show { display: flex; animation: slideIn 0.3s ease; }
+    .weather-alert.rain  { background: #EFF6FF; border: 1.5px solid #93C5FD; color: #1E40AF; }
+    .weather-alert.clear { background: #F0FDF4; border: 1.5px solid #86EFAC; color: #15803D; }
+    .weather-alert.cloud { background: #FFFBEB; border: 1.5px solid #FCD34D; color: #92400E; }
+    .weather-icon { font-size: 1.8rem; flex-shrink: 0; padding-top: 2px; }
+
+    /* ── Share button ──────────── */
+    .results-actions {
+      display: none; gap: 8px; flex-wrap: wrap; margin-top: 10px;
+      padding-top: 10px; border-top: 1px solid var(--border);
+    }
+    .results-actions.show { display: flex; }
+    .btn-share {
+      display: flex; align-items: center; gap: 5px; padding: 8px 14px;
+      background: var(--primary-light); color: var(--primary);
+      border: none; border-radius: 9px; font-family: inherit;
+      font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: background 0.2s;
+    }
+    .btn-share:hover { background: #dde6ff; }
+
+    /* ── Metro Tip ─────────────── */
+    .metro-tip {
+      display: none; border-radius: 11px; padding: 11px 14px; margin-top: 10px;
+      background: #F5F3FF; border: 1.5px solid #C4B5FD;
+      font-size: 0.8rem; color: #5B21B6; line-height: 1.6;
+    }
+    .metro-tip.show { display: block; animation: slideIn 0.3s ease; }
+
+    /* ── Fuel & CO₂ ─────────────── */
+    .fuel-inputs { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; margin-top: 8px; }
+    .fuel-field { flex: 1; min-width: 110px; }
+    .fuel-field label { font-size: 0.72rem; color: var(--muted); display: block; margin-bottom: 4px; font-weight: 500; }
+    .fuel-field input { padding: 8px 11px; font-size: 0.84rem; }
+    .fuel-field select { width: 100%; padding: 8px 11px; border: 1.5px solid var(--border); border-radius: 10px; font-family: inherit; font-size: 0.84rem; background: #FAFBFF; color: var(--text); outline: none; }
+    .fuel-result { background: var(--primary-light); border-radius: 10px; padding: 10px 13px; font-size: 0.82rem; margin-top: 10px; display: none; }
+    .fuel-result.show { display: block; }
+    .fuel-row-out { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 7px; }
+    .fuel-item { flex: 1; min-width: 100px; background: var(--card); border-radius: 9px; padding: 9px 11px; border: 1px solid var(--border); }
+    .fuel-item-name { font-size: 0.65rem; color: var(--muted); margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.3px; }
+    .fuel-item-val  { font-size: 0.9rem; font-weight: 700; color: var(--text); }
+    .fuel-item-co2  { font-size: 0.65rem; color: #15803D; margin-top: 2px; }
+
+    /* ── Best Time Chart ────────── */
+    .bt-legend { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+    .bt-legend-item { display: flex; align-items: center; gap: 4px; font-size: 0.65rem; color: var(--muted); }
+    .bt-dot { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+    .bt-grid { display: flex; gap: 2px; align-items: flex-end; height: 64px; }
+    .bt-col  { flex: 1; display: flex; flex-direction: column-reverse; align-items: center; }
+    .bt-bar  { width: 100%; border-radius: 2px 2px 0 0; min-height: 4px; }
+    .bt-bar.clear    { background: #86EFAC; }
+    .bt-bar.light    { background: #FDE047; }
+    .bt-bar.moderate { background: #FB923C; }
+    .bt-bar.heavy    { background: #EF4444; }
+    .bt-hr { font-size: 0.46rem; color: var(--muted); margin-top: 3px; white-space: nowrap; }
+    .bt-col.now .bt-bar { outline: 2px solid var(--primary); outline-offset: 1px; }
+    .bt-col.now .bt-hr  { color: var(--primary); font-weight: 700; }
+    .bt-best-time {
+      margin-top: 10px; font-size: 0.79rem; line-height: 1.55; padding: 9px 12px;
+      background: #F0FDF4; border-radius: 9px; border-left: 3px solid var(--good); color: #166534;
+    }
+
+    /* ── Remind button ──────────── */
+    .remind-btn {
+      display: none; margin-top: 8px; padding: 9px 16px;
+      background: #FFF7ED; color: #C2410C; border: 1.5px solid #FED7AA;
+      border-radius: 10px; font-family: inherit; font-size: 0.82rem;
+      font-weight: 600; cursor: pointer; align-items: center; gap: 6px;
+    }
+    .remind-btn.show { display: inline-flex; }
+    .remind-btn:hover { background: #FFEDD5; }
+    .remind-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
     @media (max-width: 400px) {
-      .routes-grid { gap: 6px; }
-      .route-chip  { padding: 10px 6px; }
-      .rc-time     { font-size: 0.95rem; }
+      .routes-grid { gap: 7px; }
+      .route-chip  { padding: 10px 10px; gap: 10px; }
+      .rc-left     { width: 80px; padding-right: 9px; }
+      .rc-time     { font-size: 1.1rem; }
+      .rc-desc     { font-size: 0.75rem; }
+      .rc-wp       { font-size: 0.7rem; }
     }
   </style>
 </head>
@@ -353,7 +547,10 @@
         <p>Bangalore &middot; <span id="liveTime">--:--</span> &middot; <span id="liveDay">--</span></p>
       </div>
     </div>
-    <div class="traffic-pill pill-medium" id="trafficPill">🟡 Loading...</div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="traffic-pill pill-medium" id="trafficPill">🟡 Loading...</div>
+      <button class="dark-toggle" id="darkToggle" onclick="toggleDark()" title="Toggle dark mode">🌙</button>
+    </div>
   </div>
 
   <!-- API SETUP TOGGLE -->
@@ -431,6 +628,13 @@
     </div>
     <div id="findError" class="error-msg" style="display:none;"></div>
     <button class="btn-primary" id="findBtn" onclick="findRoute()">🗺 Find Best Route</button>
+    <div class="fav-section">
+      <div class="fav-header">
+        <div class="fav-label">⭐ Saved routes</div>
+        <button class="fav-save-btn" onclick="saveFavourite()">+ Save current</button>
+      </div>
+      <div class="fav-strip" id="favStrip"><span class="fav-empty">No saved routes yet</span></div>
+    </div>
   </div>
 
   <!-- IPL NIGHT MODE BANNER -->
@@ -441,6 +645,9 @@
       Plan to leave before 9:45 PM or after 11:30 PM to avoid the surge.
     </div>
   </div>
+
+  <!-- WEATHER ALERT -->
+  <div class="weather-alert w" id="weatherAlert"></div>
 
   <!-- RESULTS SECTION -->
   <div class="results-section w" id="resultsSection">
@@ -453,6 +660,10 @@
       <div class="routes-grid" id="routesGrid"></div>
       <div class="route-detail" id="routeDetail"></div>
       <div class="traffic-context" id="trafficContext"></div>
+      <div class="metro-tip" id="metroTip"></div>
+      <div class="results-actions" id="resultsActions">
+        <button class="btn-share" onclick="shareRoute()">📤 Share Route</button>
+      </div>
     </div>
 
     <!-- Leave-By Calculator -->
@@ -464,6 +675,44 @@
         <button class="btn-secondary" onclick="calcLeaveBy()">Calculate</button>
       </div>
       <div class="leaveby-result" id="leaveByResult"></div>
+      <button class="remind-btn" id="remindBtn" onclick="scheduleReminder()">🔔 Remind me 10 min before</button>
+    </div>
+
+    <!-- Best Time to Leave -->
+    <div class="card">
+      <div class="card-title">📈 Best time to leave today</div>
+      <div class="bt-legend">
+        <div class="bt-legend-item"><div class="bt-dot" style="background:#86EFAC"></div>Clear</div>
+        <div class="bt-legend-item"><div class="bt-dot" style="background:#FDE047"></div>Light</div>
+        <div class="bt-legend-item"><div class="bt-dot" style="background:#FB923C"></div>Moderate</div>
+        <div class="bt-legend-item"><div class="bt-dot" style="background:#EF4444"></div>Heavy</div>
+      </div>
+      <div class="bt-grid" id="bestTimeGrid"></div>
+      <div class="bt-best-time" id="btBestTime"></div>
+    </div>
+
+    <!-- Fuel & CO₂ -->
+    <div class="card">
+      <div class="card-title">⛽ Fuel Cost &amp; CO₂</div>
+      <div class="fuel-inputs">
+        <div class="fuel-field">
+          <label>Fuel type</label>
+          <select id="fuelType" onchange="calcFuel()">
+            <option value="petrol">⛽ Petrol (~₹103/L)</option>
+            <option value="diesel">🛢 Diesel (~₹89/L)</option>
+            <option value="cng">💨 CNG (~₹82/kg)</option>
+          </select>
+        </div>
+        <div class="fuel-field">
+          <label>Your car's mileage (km/L)</label>
+          <input type="number" id="fuelMileage" placeholder="e.g. 15" min="1" max="100" oninput="calcFuel()" />
+        </div>
+        <button class="btn-secondary" onclick="calcFuel()">Calculate</button>
+      </div>
+      <div class="fuel-result" id="fuelResult">
+        <div style="font-size:0.72rem;color:var(--muted);margin-bottom:6px;">Per-route cost at current Bengaluru prices:</div>
+        <div class="fuel-row-out" id="fuelRowOut"></div>
+      </div>
     </div>
 
   </div>
@@ -576,13 +825,304 @@ function init() {
   if (state.gmapsKey)  document.getElementById('gmapsKey').value  = state.gmapsKey;
   if (state.geminiKey) document.getElementById('geminiKey').value = state.geminiKey;
   if (state.cricKey)   document.getElementById('cricKey').value   = state.cricKey;
+  // Dark mode
+  if (localStorage.getItem('dark_mode') === '1') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.getElementById('darkToggle').textContent = '☀️';
+  }
   updateSetupStatus();
   updateClock();
   setInterval(updateClock, 30000);
   rotateTips();
   setInterval(rotateTips, 8000);
   renderHistory();
-  checkIPLLive(); // replaces old hardcoded checkIPL()
+  renderFavs();
+  renderBestTimeChart();
+  fetchWeather();
+  checkIPLLive();
+}
+
+// ════════════════════════════════════════════════
+// DARK MODE
+// ════════════════════════════════════════════════
+function toggleDark() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('darkToggle').textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('dark_mode', isDark ? '0' : '1');
+}
+
+// ════════════════════════════════════════════════
+// MY LOCATION
+// ════════════════════════════════════════════════
+function useMyLocation() {
+  if (!navigator.geolocation) { showToast('Geolocation not supported by your browser.'); return; }
+  const srcEl = document.getElementById('source');
+  srcEl.value = '📍 Locating...';
+  srcEl.disabled = true;
+  navigator.geolocation.getCurrentPosition(
+    async ({ coords: { latitude: lat, longitude: lon } }) => {
+      try {
+        if (!state.gmapsKey) throw new Error('no key');
+        const res  = await fetch(`${GMAPS_BASE}/geocode/json?latlng=${lat},${lon}&key=${encodeURIComponent(state.gmapsKey)}&language=en-IN`);
+        const data = await res.json();
+        srcEl.value = data.results?.[0]?.formatted_address || `${lat.toFixed(5)},${lon.toFixed(5)}`;
+      } catch {
+        srcEl.value = `${lat.toFixed(5)},${lon.toFixed(5)}`;
+      }
+      srcEl.disabled = false;
+    },
+    (err) => { srcEl.value = ''; srcEl.disabled = false; showToast('Could not get location: ' + err.message); },
+    { timeout: 10000 }
+  );
+}
+
+// ════════════════════════════════════════════════
+// FAVOURITES
+// ════════════════════════════════════════════════
+function loadFavs() {
+  try { return JSON.parse(localStorage.getItem('blr_favs') || '[]'); } catch { return []; }
+}
+function saveFavourite() {
+  const { src, dst } = state;
+  if (!src || !dst) { showToast('Find a route first, then save it!'); return; }
+  const favs = loadFavs();
+  if (favs.some(f => f.src === src && f.dst === dst)) { showToast('Already saved!'); return; }
+  favs.unshift({ src, dst });
+  if (favs.length > 6) favs.pop();
+  localStorage.setItem('blr_favs', JSON.stringify(favs));
+  renderFavs();
+  showToast('⭐ Route saved!');
+}
+function removeFav(i) {
+  const favs = loadFavs(); favs.splice(i, 1);
+  localStorage.setItem('blr_favs', JSON.stringify(favs));
+  renderFavs();
+}
+function applyFav(src, dst) {
+  document.getElementById('source').value = src;
+  document.getElementById('destination').value = dst;
+  findRoute();
+}
+function renderFavs() {
+  const favs  = loadFavs();
+  const strip = document.getElementById('favStrip');
+  if (!strip) return;
+  if (!favs.length) {
+    strip.innerHTML = '<span class="fav-empty">No saved routes yet</span>';
+    return;
+  }
+  strip.innerHTML = favs.map((f, i) => `
+    <div class="fav-chip" onclick="applyFav(${JSON.stringify(f.src)},${JSON.stringify(f.dst)})">
+      <span class="fav-chip-label">⭐ ${f.src.split(',')[0].trim()} → ${f.dst.split(',')[0].trim()}</span>
+      <span class="fav-chip-del" onclick="event.stopPropagation();removeFav(${i})" title="Remove">✕</span>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════════════
+// WEATHER — Open-Meteo (free, no key)
+// ════════════════════════════════════════════════
+async function fetchWeather() {
+  const el = document.getElementById('weatherAlert');
+  if (!el) return;
+  try {
+    const res  = await fetch(
+      `https://api.open-meteo.com/v1/forecast?latitude=${BLORE.lat}&longitude=${BLORE.lon}&hourly=precipitation_probability,weathercode&forecast_days=1&timezone=Asia%2FKolkata`
+    );
+    const data   = await res.json();
+    const probs  = data.hourly?.precipitation_probability || [];
+    const nowHr  = new Date().getHours();
+    const maxProb = Math.max(...[nowHr, nowHr+1, nowHr+2].filter(h => h < 24).map(h => probs[h] ?? 0));
+
+    if (maxProb >= 50) {
+      el.className = 'weather-alert w rain show';
+      el.innerHTML = `<div class="weather-icon">🌧️</div><div><strong>Rain likely in the next few hours</strong> (${maxProb}% chance).<br/>Wet roads can add 10–20% to travel time — plan accordingly.</div>`;
+    } else if (maxProb >= 30) {
+      el.className = 'weather-alert w cloud show';
+      el.innerHTML = `<div class="weather-icon">⛅</div><div>Possible showers nearby (${maxProb}% chance). Keep an umbrella handy.</div>`;
+    } else {
+      el.className = 'weather-alert w clear show';
+      el.innerHTML = `<div class="weather-icon">☀️</div><div><strong>Clear skies ahead</strong> — no rain in the next 3 hours. Good time to head out!</div>`;
+      setTimeout(() => el.classList.remove('show'), 8000);
+    }
+  } catch { /* silent fail — weather is optional */ }
+}
+
+// ════════════════════════════════════════════════
+// SHARE ROUTE
+// ════════════════════════════════════════════════
+async function shareRoute() {
+  if (!state.routes.length) return;
+  const r    = state.routes[0];
+  const desc = r.desc ? r.desc.replace(/^via\s*/i, 'via ') : (r.via || '');
+  const text = `🚦 BLR Traffic: ${state.src} → ${state.dst}\n`
+    + `🏆 Fastest: ${r.estMins} min · ${r.distKm} km ${desc ? '(' + desc + ')' : ''}\n`
+    + `\nChecked on BLR Smart Traffic → https://mithunglares.github.io/trafficapp/`;
+  if (navigator.share) {
+    try { await navigator.share({ title: 'BLR Smart Traffic', text }); } catch {}
+  } else {
+    await navigator.clipboard.writeText(text).catch(() => {});
+    showToast('Route copied to clipboard!');
+  }
+}
+
+// ════════════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════════════
+function showToast(msg) {
+  let t = document.getElementById('_toast');
+  if (!t) {
+    t = document.createElement('div'); t.id = '_toast';
+    Object.assign(t.style, {
+      position:'fixed', bottom:'80px', left:'50%', transform:'translateX(-50%)',
+      background:'#1A2332', color:'#fff', padding:'10px 18px', borderRadius:'10px',
+      fontSize:'0.82rem', fontWeight:'600', zIndex:'9999', opacity:'0',
+      transition:'opacity 0.3s', whiteSpace:'nowrap'
+    });
+    document.body.appendChild(t);
+  }
+  t.textContent = msg; t.style.opacity = '1';
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => { t.style.opacity = '0'; }, 2600);
+}
+
+// ════════════════════════════════════════════════
+// FUEL COST + CO₂
+// ════════════════════════════════════════════════
+function calcFuel() {
+  const kmpl  = parseFloat(document.getElementById('fuelMileage').value) || 0;
+  const ftype = document.getElementById('fuelType').value;
+  if (!kmpl || kmpl < 1 || !state.routes.length) {
+    document.getElementById('fuelResult').classList.remove('show'); return;
+  }
+  const prices   = { petrol: 103, diesel: 89, cng: 82 };
+  const co2perL  = { petrol: 2300, diesel: 2650, cng: 1400 };
+  const price    = prices[ftype] || 103;
+  const co2gkm   = (co2perL[ftype] || 2300) / kmpl;
+  const rowEl    = document.getElementById('fuelRowOut');
+  const resultEl = document.getElementById('fuelResult');
+  rowEl.innerHTML = state.routes.map((r, i) => {
+    const litres = parseFloat(r.distKm) / kmpl;
+    const cost   = litres * price;
+    const co2kg  = (co2gkm * parseFloat(r.distKm) / 1000).toFixed(2);
+    const label  = r.desc ? r.desc.replace(/^via\s*/i,'') : `Route ${i+1}`;
+    return `<div class="fuel-item">
+      <div class="fuel-item-name">${label}</div>
+      <div class="fuel-item-val">₹${cost.toFixed(0)} &middot; ${litres.toFixed(1)} L</div>
+      <div class="fuel-item-co2">🌿 ${co2kg} kg CO₂</div>
+    </div>`;
+  }).join('');
+  resultEl.classList.add('show');
+}
+
+// ════════════════════════════════════════════════
+// NAMMA METRO SUGGESTER
+// ════════════════════════════════════════════════
+const METRO_STATIONS = [
+  { name:'MG Road',          lat:12.9753, lon:77.6098 },
+  { name:'Indiranagar',      lat:12.9784, lon:77.6408 },
+  { name:'Banaswadi',        lat:13.0152, lon:77.6521 },
+  { name:'Whitefield',       lat:12.9698, lon:77.7499 },
+  { name:'KSR / Majestic',   lat:12.9767, lon:77.5713 },
+  { name:'Yeshwantpur',      lat:13.0234, lon:77.5502 },
+  { name:'Vijayanagar',      lat:12.9596, lon:77.5387 },
+  { name:'Jayanagar',        lat:12.9245, lon:77.5939 },
+  { name:'JP Nagar',         lat:12.9093, lon:77.5832 },
+  { name:'Silk Board',       lat:12.9175, lon:77.6231 },
+  { name:'HSR Layout',       lat:12.9098, lon:77.6476 },
+  { name:'Marathahalli',     lat:12.9569, lon:77.7011 },
+  { name:'Hebbal',           lat:13.0351, lon:77.5972 },
+  { name:'Yelahanka',        lat:13.1011, lon:77.5963 },
+  { name:'R V Road',         lat:12.9395, lon:77.5889 },
+  { name:'Bannerghatta Rd',  lat:12.9152, lon:77.5961 },
+  { name:'Electronic City',  lat:12.8458, lon:77.6692 },
+];
+function hvKm(a1,o1,a2,o2) {
+  const R=6371, dA=(a2-a1)*Math.PI/180, dO=(o2-o1)*Math.PI/180;
+  const a=Math.sin(dA/2)**2+Math.cos(a1*Math.PI/180)*Math.cos(a2*Math.PI/180)*Math.sin(dO/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+async function showMetroTip() {
+  const el = document.getElementById('metroTip');
+  if (!el || !state.gmapsKey || !state.src || !state.dst) { el?.classList.remove('show'); return; }
+  try {
+    const [[sLon,sLat],[dLon,dLat]] = await Promise.all([geocode(state.src), geocode(state.dst)]);
+    const near = arr => [...arr].sort((a,b)=>hvKm(sLat,sLon,a.lat,a.lon)-hvKm(sLat,sLon,b.lat,b.lon))[0];
+    const nearSrc = METRO_STATIONS.map(s=>({...s,d:hvKm(sLat,sLon,s.lat,s.lon)})).sort((a,b)=>a.d-b.d)[0];
+    const nearDst = METRO_STATIONS.map(s=>({...s,d:hvKm(dLat,dLon,s.lat,s.lon)})).sort((a,b)=>a.d-b.d)[0];
+    const best = state.routes[0]?.estMins || 0;
+    if (nearSrc.d <= 1.5 && nearDst.d <= 1.5 && best >= 20) {
+      el.innerHTML = `🚇 <strong>Namma Metro:</strong> <strong>${nearSrc.name}</strong> (${nearSrc.d.toFixed(1)} km away) → <strong>${nearDst.name}</strong> (${nearDst.d.toFixed(1)} km from destination). Metro could beat current traffic entirely!`;
+      el.classList.add('show');
+    } else if (nearSrc.d <= 1.0 && best >= 15) {
+      el.innerHTML = `🚇 <strong>${nearSrc.name}</strong> metro is only ${nearSrc.d.toFixed(1)} km from your start. Consider Namma Metro if the destination is on the same line.`;
+      el.classList.add('show');
+    } else {
+      el.classList.remove('show');
+    }
+  } catch { el.classList.remove('show'); }
+}
+
+// ════════════════════════════════════════════════
+// BEST TIME TO LEAVE CHART
+// ════════════════════════════════════════════════
+function renderBestTimeChart() {
+  const el = document.getElementById('bestTimeGrid');
+  if (!el) return;
+  const now  = new Date();
+  const isWE = now.getDay() === 0 || now.getDay() === 6;
+  const tbl  = isWE ? WEEKEND : WEEKDAY;
+  const nowH = now.getHours();
+  const maxM = Math.max(...Object.values(tbl));
+  const cls  = m => m < 0.9 ? 'clear' : m < 1.35 ? 'light' : m < 1.85 ? 'moderate' : 'heavy';
+  const hours = Array.from({ length: 18 }, (_, i) => i + 6); // 6am–11pm
+  el.innerHTML = hours.map(h => {
+    const m   = tbl[h] ?? 1;
+    const pct = Math.max(8, (m / maxM) * 100);
+    const isNow = h === nowH;
+    const lbl = h === 12 ? '12p' : h > 12 ? `${h-12}p` : `${h}a`;
+    return `<div class="bt-col${isNow ? ' now' : ''}">
+      <div class="bt-bar ${cls(m)}" style="height:${pct}%"></div>
+      <div class="bt-hr">${lbl}</div>
+    </div>`;
+  }).join('');
+  // Find best 2-hr window
+  let bestH = 6, bestAvg = Infinity;
+  for (let h = 6; h <= 21; h++) {
+    const avg = ((tbl[h]??1) + (tbl[h+1]??1)) / 2;
+    if (avg < bestAvg) { bestAvg = avg; bestH = h; }
+  }
+  const fmt = h => `${h % 12 || 12}:00 ${h < 12 ? 'AM' : 'PM'}`;
+  const btEl = document.getElementById('btBestTime');
+  if (btEl) btEl.innerHTML = `💡 <strong>Best window today (${isWE ? 'Weekend' : 'Weekday'}):</strong> Leave around <strong>${fmt(bestH)} – ${fmt(bestH+1)}</strong> for the lightest traffic conditions.`;
+}
+
+// ════════════════════════════════════════════════
+// LEAVE-BY PUSH REMINDER
+// ════════════════════════════════════════════════
+async function scheduleReminder() {
+  const btn = document.getElementById('remindBtn');
+  if (!('Notification' in window)) { showToast('Notifications not supported in this browser.'); return; }
+  const perm = await Notification.requestPermission();
+  if (perm !== 'granted') { showToast('Please allow notifications to use this feature.'); return; }
+  const timeVal = document.getElementById('arrivalTime').value;
+  if (!timeVal || !state.bestTime) { showToast('Calculate a leave-by time first.'); return; }
+  const [h, m]  = timeVal.split(':').map(Number);
+  const leaveMins = h * 60 + m - state.bestTime - 5;
+  const now     = new Date();
+  const nowMins = now.getHours() * 60 + now.getMinutes();
+  const alertIn = (leaveMins - nowMins - 10) * 60 * 1000; // 10 min before leave time
+  if (alertIn <= 0) { showToast('Leave time is too soon to set a reminder!'); return; }
+  setTimeout(() => {
+    new Notification('🚦 BLR Traffic — Time to Leave!', {
+      body: `Leave in ~10 min to reach ${state.dst || 'your destination'} on time. Journey: ~${state.bestTime} min.`,
+      icon: './icons/icon-192.svg'
+    });
+  }, alertIn);
+  const minsBefore = Math.round(alertIn / 60000);
+  showToast(`⏰ Reminder set — you'll be notified in ~${minsBefore} min!`);
+  btn.textContent = `⏰ Reminder set (${minsBefore} min away)`;
+  btn.disabled = true;
 }
 
 // ════════════════════════════════════════════════
@@ -758,7 +1298,7 @@ async function fetchRoutes(srcCoords, dstCoords) {
     headers: {
       'Content-Type': 'application/json',
       'X-Goog-Api-Key': state.gmapsKey,
-      'X-Goog-FieldMask': 'routes.duration,routes.distanceMeters,routes.legs.steps.navigationInstruction,routes.legs.steps.distanceMeters'
+      'X-Goog-FieldMask': 'routes.description,routes.duration,routes.staticDuration,routes.distanceMeters,routes.legs.steps.navigationInstruction,routes.legs.steps.distanceMeters'
     },
     body: JSON.stringify({
       origin:      { location: { latLng: { latitude: srcCoords[1], longitude: srcCoords[0] } } },
@@ -871,12 +1411,15 @@ async function findRoute() {
 
     state.routes = routes
       .map((r, i) => ({
-        index:    i,
-        baseSecs: parseInt(r.duration),            // "1234s" → 1234 seconds
-        distM:    r.distanceMeters,
-        estMins:  Math.round(parseInt(r.duration) / 60), // live traffic already included
-        distKm:   (r.distanceMeters / 1000).toFixed(1),
-        via:      extractVia(r)
+        index:      i,
+        baseSecs:   parseInt(r.duration),
+        distM:      r.distanceMeters,
+        estMins:    Math.round(parseInt(r.duration) / 60),
+        staticMins: Math.round(parseInt(r.staticDuration || r.duration) / 60),
+        distKm:     (r.distanceMeters / 1000).toFixed(1),
+        desc:       r.description || '',
+        via:        extractVia(r),
+        waypoints:  extractOrderedWaypoints(r)
       }))
       .sort((a, b) => a.estMins - b.estMins);
 
@@ -925,21 +1468,107 @@ function extractVia(route) {
   return top.length ? 'via ' + top.join(' → ') : '';
 }
 
+// Returns ordered array of {name, dist} for named roads along the route
+function extractOrderedWaypoints(route, limit = 8) {
+  const steps = route.legs?.[0]?.steps || [];
+  const seen  = new Set();
+  const out   = [];
+
+  for (const step of steps) {
+    const instr = step.navigationInstruction?.instructions || '';
+    const dist  = step.distanceMeters || 0;
+    if (dist < 150) continue;
+
+    let name = null;
+
+    // "onto X" / "along X" — strongest signal
+    const m1 = instr.match(/\b(?:onto|along)\s+(.+?)(?:\s+toward\b|\s+\(|\s*$)/i);
+    if (m1) name = m1[1].trim();
+
+    // "Continue on X" / "Head north on X"
+    if (!name) {
+      const m2 = instr.match(/\b(?:continue|head\s+\w+|take)\s+on\s+(.+?)(?:\s+toward\b|\s+\(|\s*$)/i);
+      if (m2) name = m2[1].trim();
+    }
+
+    // "on X" — but not "on the left/right" or distance phrases
+    if (!name) {
+      const m3 = instr.match(/\bon\s+(?!the\b|your\b)(.+?)(?:\s+toward\b|\s+\(|\s*$)/i);
+      if (m3 && !/^\d|\bkm\b|\bm\b/i.test(m3[1])) name = m3[1].trim();
+    }
+
+    // Instruction IS the road name (e.g. "NH 44/NH 75", "Outer Ring Road")
+    if (!name && dist >= 400) {
+      const isRoad = /^([A-Z]{1,4}[\s\d\/]+|[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(?:Road|Rd|Street|St|Highway|Hwy|Avenue|Ave|Lane|Ln|Way|Flyover|Junction|Bridge|Circle|Cross))$/i.test(instr.trim());
+      if (isRoad) name = instr.trim();
+    }
+
+    // Skip generic noise words
+    if (name && /^(the\s+)?(left|right|straight|service\s+road)$/i.test(name)) name = null;
+
+    if (name && !seen.has(name)) {
+      seen.add(name);
+      out.push({ name, dist });
+    }
+    if (out.length >= limit) break;
+  }
+  return out;
+}
+
 function renderResults(src, dst) {
   document.getElementById('routesTripLabel').textContent = `\u2014 ${src} \u2192 ${dst}`;
 
-  const names = ['Route 1', 'Route 2', 'Route 3'];
-  document.getElementById('routesGrid').innerHTML = state.routes.map((r, i) => `
+  const fastest = state.routes[0].estMins;
+  document.getElementById('routesGrid').innerHTML = state.routes.map((r, i) => {
+    // Traffic delay pill
+    const delayMins = r.estMins - r.staticMins;
+    const delayPct  = r.staticMins > 0 ? (delayMins / r.staticMins) * 100 : 0;
+    let delayCls, delayTxt;
+    if (delayPct < 10)      { delayCls = 'light';    delayTxt = '\uD83D\uDFE2 Light'; }
+    else if (delayPct < 30) { delayCls = 'moderate'; delayTxt = '\uD83D\uDFE1 +' + delayMins + ' min'; }
+    else                    { delayCls = 'heavy';    delayTxt = '\uD83D\uDD34 +' + delayMins + ' min'; }
+
+    // Speed badge
+    const diff = r.estMins - fastest;
+    let badgeHtml;
+    if (i === 0)        badgeHtml = '<span class="rc-badge fastest">\u2713 Fastest</span>';
+    else if (diff <= 5) badgeHtml = `<span class="rc-badge slower">+${diff} min slower</span>`;
+    else                badgeHtml = `<span class="rc-badge much-slower">+${diff} min slower</span>`;
+
+    // Route heading: Google description > via > fallback
+    const heading = r.desc
+      ? r.desc.replace(/^via\s*/i, 'Via ')
+      : (r.via ? r.via.replace(/^via\s*/i, 'Via ') : ('Route ' + (i + 1)));
+
+    // Ordered named waypoints with distances
+    const wpHtml = r.waypoints.length
+      ? r.waypoints.map(w => {
+          const d = w.dist >= 1000 ? (w.dist / 1000).toFixed(1) + ' km' : Math.round(w.dist) + ' m';
+          return `<div class="rc-wp"><span class="rc-wp-dot">\u25B8</span>${w.name}<span class="rc-wp-dist">${d}</span></div>`;
+        }).join('')
+      : '<div class="rc-wp-none">Tap card for turn-by-turn details \u2193</div>';
+
+    return `
     <div class="route-chip ${i === 0 ? 'best-route' : ''}" onclick="highlightRoute(${i})" style="cursor:pointer">
-      <div class="rc-label">${names[i] || 'Route ' + (i + 1)}</div>
-      <div class="rc-time">${r.estMins} min</div>
-      <div class="rc-dist">${r.distKm} km</div>
-      ${r.via ? `<div class="rc-via">${r.via}</div>` : ''}
-      ${i === 0 ? '<div class="rc-best">\u2713 Fastest</div>' : ''}
-    </div>`).join('');
+      <div class="rc-left">
+        ${badgeHtml}
+        <div class="rc-time">${r.estMins}<span class="rc-unit">min</span></div>
+        <div class="rc-dist">${r.distKm} km</div>
+        <div class="rc-delay ${delayCls}">${delayTxt}</div>
+      </div>
+      <div class="rc-right">
+        <div class="rc-desc">${heading}</div>
+        <div class="rc-waypoints">${wpHtml}</div>
+      </div>
+    </div>`;
+  }).join('');
 
   // Route detail panel — default to Route 1
   renderRouteDetail(0);
+  // Show share button + trigger async enhancements
+  document.getElementById('resultsActions').classList.add('show');
+  showMetroTip();
+  calcFuel(); // auto-recalculate if mileage already entered
 }
 
 const GMAPS_MANEUVER_ICONS = {
@@ -993,7 +1622,9 @@ function renderRouteDetail(idx) {
   const top = [...named].sort((a, b) => b.dist - a.dist).slice(0, 6)
     .sort((a, b) => named.indexOf(a) - named.indexOf(b));
 
-  const names = ['Route 1', 'Route 2', 'Route 3'];
+  const routeLabel = r.desc
+    ? r.desc.replace(/^via\s*/i, 'Via ')
+    : (r.via ? r.via.replace(/^via\s*/i, 'Via ') : `Route ${idx + 1}`);
   const stepsHTML = top.length
     ? top.map(s => {
         const icon = GMAPS_MANEUVER_ICONS[s.maneuver] || '↑';
@@ -1010,8 +1641,7 @@ function renderRouteDetail(idx) {
 
   panel.innerHTML = `
     <div class="rd-header">
-      🛣️ ${names[idx]} — Key Roads (${r.distKm} km &middot; ~${r.estMins} min)
-      ${r.via ? `<span style="font-weight:400;color:var(--muted);font-size:0.75rem;">${r.via}</span>` : ''}
+      \uD83D\uDEE3\uFE0F ${routeLabel} — Key Roads (${r.distKm} km &middot; ~${r.estMins} min)
     </div>
     <div class="rd-steps">${stepsHTML}</div>`;
   panel.classList.add('show');
@@ -1072,6 +1702,9 @@ function calcLeaveBy() {
   else                     urgency = `You have <strong>${minsLeft} minutes</strong> before you need to leave.`;
   resultEl.innerHTML = `Leave by <strong>${str}</strong> to arrive by ${timeVal} (5-min buffer included). ${urgency}`;
   resultEl.classList.add('show');
+  // Show reminder button now that we have a valid leave time
+  const remBtn = document.getElementById('remindBtn');
+  if (remBtn) { remBtn.classList.add('show'); remBtn.disabled = false; remBtn.textContent = '🔔 Remind me 10 min before'; }
 }
 
 // ════════════════════════════════════════════════

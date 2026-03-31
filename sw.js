@@ -1,4 +1,4 @@
-const CACHE_NAME = 'blr-traffic-v1';
+const CACHE_NAME = 'blr-traffic-v2';
 const STATIC_ASSETS = [
   './',
   './index.html',
