@@ -1230,20 +1230,8 @@ If no significant events today, respond: {"events":[]}
 Maximum 3 events. Keep each message under 130 characters.`;
 
     try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(state.geminiKey)}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.2, maxOutputTokens: 512 }
-          })
-        }
-      );
-      if (!res.ok) throw new Error('Gemini error');
-      const data = await res.json();
-      let raw = (data.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
+      const data = await callGeminiSimple(prompt);
+      let raw = (data?.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
       // Strip markdown fences if Gemini wraps in ```json ... ```
       raw = raw.replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/\s*```$/, '');
       const parsed = JSON.parse(raw);
@@ -1360,40 +1348,62 @@ async function fetchRoutes(srcCoords, dstCoords) {
 }
 
 // ════════════════════════════════════════════════
-// GEMINI API
+// GEMINI API — serial queue + exponential backoff
+// All calls go through _enqueueGemini so they never
+// fire concurrently and trigger rate limit errors.
 // ════════════════════════════════════════════════
-async function callGeminiAPI(systemText, contents, retries = 3) {
-  for (let attempt = 0; attempt < retries; attempt++) {
+let _geminiChain  = Promise.resolve();
+let _lastGeminiMs = 0;
+const GEMINI_GAP  = 2500; // ms minimum gap between consecutive calls
+
+function _enqueueGemini(fn) {
+  const result = _geminiChain.then(() => fn());
+  _geminiChain = result.catch(() => {}); // keep chain alive on individual errors
+  return result;
+}
+
+async function _geminiFetch(body, retries) {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const gap = _lastGeminiMs + GEMINI_GAP - Date.now();
+    if (gap > 0) await new Promise(r => setTimeout(r, gap));
+    _lastGeminiMs = Date.now();
     const res = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(state.geminiKey)}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: systemText }] },
-          contents
-        })
-      }
+      { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
     );
     if (res.ok) return res.json();
     const err = await res.json().catch(() => ({}));
-    if (res.status === 429) {
-      // Rate limited — wait and retry
-      const waitSecs = (attempt + 1) * 8;
-      const typingEls = document.querySelectorAll('.msg-typing');
-      typingEls.forEach(el => { el.textContent = `\u23F3 Rate limited. Retrying in ${waitSecs}s...`; });
-      await new Promise(r => setTimeout(r, waitSecs * 1000));
+    if (res.status === 429 && attempt < retries) {
+      const secs = [20, 45, 90][attempt] ?? 90;
+      document.querySelectorAll('.msg-typing').forEach(el => {
+        el.textContent = `⏳ Rate limited. Retrying in ${secs}s…`;
+      });
+      await new Promise(r => setTimeout(r, secs * 1000));
       continue;
     }
-    if (res.status === 400 || res.status === 401 || res.status === 403) {
-      throw new Error(
-        'Gemini key issue. Make sure the \'Generative Language API\' is enabled in your ' +
-        'Google Cloud project at console.cloud.google.com/apis. Then verify your key in \u2699\ufe0f API Setup.'
-      );
-    }
+    if (res.status === 429)
+      throw new Error('Rate limited. Please wait ~1 minute, then try again.');
+    if ([400, 401, 403].includes(res.status))
+      throw new Error("Gemini key issue — verify your key in ⚙️ API Setup and ensure 'Generative Language API' is enabled.");
     throw new Error(`Gemini error (${res.status}): ${err.error?.message || 'Please try again.'}`);
   }
-  throw new Error('Still rate-limited after retries. Please wait ~1 minute and try again.');
+}
+
+// Chat / analysis — queued, 2 retries
+async function callGeminiAPI(systemText, contents) {
+  return _enqueueGemini(() => _geminiFetch({
+    system_instruction: { parts: [{ text: systemText }] },
+    contents,
+    generationConfig: { temperature: 0.7, maxOutputTokens: 512 }
+  }, 2));
+}
+
+// Background/simple — queued, 0 retries (fail silently if rate limited)
+async function callGeminiSimple(prompt) {
+  return _enqueueGemini(() => _geminiFetch({
+    contents: [{ parts: [{ text: prompt }] }],
+    generationConfig: { temperature: 0.2, maxOutputTokens: 512 }
+  }, 0));
 }
 
 async function askGemini(userMsg) {
