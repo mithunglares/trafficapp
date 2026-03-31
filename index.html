@@ -175,14 +175,14 @@
     .btn-secondary:hover { background: #dde6ff; }
     .btn-reset {
       display: flex; align-items: center; gap: 5px;
-      padding: 6px 13px; margin-left: auto;
+      padding: 12px 16px;
       background: transparent; color: var(--muted);
-      border: 1.5px solid var(--border); border-radius: 9px;
-      font-family: inherit; font-size: 0.8rem; font-weight: 600;
+      border: 1.5px solid var(--border); border-radius: 11px;
+      font-family: inherit; font-size: 0.88rem; font-weight: 600;
       cursor: pointer; transition: color 0.2s, border-color 0.2s, background 0.2s;
-      white-space: nowrap;
+      white-space: nowrap; flex-shrink: 0;
     }
-    .btn-reset:hover { color: var(--primary); border-color: var(--primary); background: var(--primary-light); }
+    .btn-reset:hover { color: #EF4444; border-color: #EF4444; background: #FEF2F2; }
     .btn-voice {
       padding: 9px 11px; background: var(--primary-light); color: var(--primary);
       border: none; border-radius: 9px; cursor: pointer; font-size: 16px; line-height: 1;
@@ -654,7 +654,10 @@
       </div>
     </div>
     <div id="findError" class="error-msg" style="display:none;"></div>
-    <button class="btn-primary" id="findBtn" onclick="findRoute()">🗺 Find Best Route</button>
+    <div style="display:flex;gap:8px;align-items:stretch;">
+      <button class="btn-primary" id="findBtn" onclick="findRoute()" style="flex:1;">🗺 Find Route</button>
+      <button class="btn-reset" onclick="resetSearch()" title="Clear and start over">✕ Clear</button>
+    </div>
     <div class="fav-section">
       <div class="fav-header">
         <div class="fav-label">⭐ Saved routes</div>
@@ -677,7 +680,6 @@
       <div class="card-title" style="flex-wrap:wrap;gap:4px;">
         🗺 Routes
         <span id="routesTripLabel" style="text-transform:none;letter-spacing:0;font-weight:600;color:var(--text);font-size:0.82rem;"></span>
-        <button class="btn-reset" onclick="resetSearch()" title="New search">✕ New Search</button>
       </div>
       <div class="routes-grid" id="routesGrid"></div>
       <div class="route-detail" id="routeDetail"></div>
