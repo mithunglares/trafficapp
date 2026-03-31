@@ -173,6 +173,16 @@
       white-space: nowrap;
     }
     .btn-secondary:hover { background: #dde6ff; }
+    .btn-reset {
+      display: flex; align-items: center; gap: 5px;
+      padding: 6px 13px; margin-left: auto;
+      background: transparent; color: var(--muted);
+      border: 1.5px solid var(--border); border-radius: 9px;
+      font-family: inherit; font-size: 0.8rem; font-weight: 600;
+      cursor: pointer; transition: color 0.2s, border-color 0.2s, background 0.2s;
+      white-space: nowrap;
+    }
+    .btn-reset:hover { color: var(--primary); border-color: var(--primary); background: var(--primary-light); }
     .btn-voice {
       padding: 9px 11px; background: var(--primary-light); color: var(--primary);
       border: none; border-radius: 9px; cursor: pointer; font-size: 16px; line-height: 1;
@@ -667,6 +677,7 @@
       <div class="card-title" style="flex-wrap:wrap;gap:4px;">
         🗺 Routes
         <span id="routesTripLabel" style="text-transform:none;letter-spacing:0;font-weight:600;color:var(--text);font-size:0.82rem;"></span>
+        <button class="btn-reset" onclick="resetSearch()" title="New search">✕ New Search</button>
       </div>
       <div class="routes-grid" id="routesGrid"></div>
       <div class="route-detail" id="routeDetail"></div>
@@ -1609,6 +1620,33 @@ const GMAPS_MANEUVER_ICONS = {
 };
 
 function isIPLNight() { return !!state.hasEventTonight; }
+
+function resetSearch() {
+  // Clear inputs
+  document.getElementById('source').value      = '';
+  document.getElementById('destination').value = '';
+  // Hide results, banners, cards
+  document.getElementById('resultsSection').classList.remove('show');
+  document.getElementById('eventBanner').classList.remove('show');
+  document.getElementById('eventBanner').innerHTML          = '';
+  document.getElementById('metroTip').innerHTML             = '';
+  document.getElementById('trafficContext').innerHTML       = '';
+  document.getElementById('routesGrid').innerHTML           = '';
+  document.getElementById('routeDetail').innerHTML          = '';
+  document.getElementById('routesTripLabel').textContent    = '';
+  document.getElementById('resultsActions').classList.remove('show');
+  document.getElementById('fuelResult').style.display       = 'none';
+  document.getElementById('fuelRowOut').style.display       = 'none';
+  document.getElementById('remindBtn').style.display        = 'none';
+  // Reset state
+  state.routes         = [];
+  state.src            = '';
+  state.dst            = '';
+  state.hasEventTonight = false;
+  // Scroll back to top + focus source
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(() => document.getElementById('source').focus(), 400);
+}
 
 function highlightRoute(idx) {
   // Update chip highlighting
