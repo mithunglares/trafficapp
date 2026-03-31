@@ -67,7 +67,13 @@
     [data-theme="dark"] .rc-delay.heavy    { background: #450A0A; color: #FCA5A5; }
     [data-theme="dark"] .fuel-item { background: #0F172A; border-color: #334155; }
     [data-theme="dark"] .fuel-result { background: #1E3A5F; }
-    [data-theme="dark"] .metro-tip { background: #2D1B69; border-color: #7C3AED; color: #C4B5FD; }
+    [data-theme="dark"] .metro-tip { background: #2D1B69; border-color: #7C3AED; }
+    [data-theme="dark"] .ms-header { color: #C4B5FD; }
+    [data-theme="dark"] .ms-name   { color: #C4B5FD; }
+    [data-theme="dark"] .ms-sub    { color: #A78BFA; }
+    [data-theme="dark"] .ms-dot    { background: #1E293B; }
+    [data-theme="dark"] .rt-line   { background: var(--border); }
+    [data-theme="dark"] .rt-dot.rt-wp { background: var(--border); border-color: var(--muted); }
     [data-theme="dark"] .weather-alert.rain  { background: #1E3A5F; border-color: #3B82F6; color: #93C5FD; }
     [data-theme="dark"] .weather-alert.clear { background: #0F2B1E; border-color: #22C55E; color: #4ADE80; }
     [data-theme="dark"] .bt-best-time { background: #0F2B1E; color: #4ADE80; }
@@ -273,22 +279,20 @@
       display: flex; align-items: flex-start; gap: 14px; text-align: left;
     }
     .route-chip.best-route { border-color: var(--good); background: #F0FDF4; }
-    /* Left column — metrics */
+    /* Left column — SVG ring gauge */
     .rc-left {
-      flex: 0 0 auto; width: 94px; display: flex; flex-direction: column;
-      align-items: center; gap: 4px; text-align: center;
-      border-right: 1px solid var(--border); padding-right: 12px;
+      flex: 0 0 auto; width: 80px; display: flex; flex-direction: column;
+      align-items: center; gap: 3px; text-align: center;
+      border-right: 1px solid var(--border); padding-right: 10px;
     }
+    .rc-ring { display: block; overflow: visible; }
     .rc-badge {
-      font-size: 0.58rem; font-weight: 700; letter-spacing: 0.3px; padding: 2px 8px;
+      font-size: 0.58rem; font-weight: 700; letter-spacing: 0.3px; padding: 2px 6px;
       border-radius: 20px; text-transform: uppercase;
     }
     .rc-badge.fastest   { background: #DCFCE7; color: #15803D; }
     .rc-badge.slower    { background: #FEF9C3; color: #A16207; }
     .rc-badge.much-slower { background: #FEE2E2; color: #B91C1C; }
-    .rc-time  { font-size: 1.3rem; font-weight: 800; color: var(--text); line-height: 1.1; }
-    .rc-time .rc-unit { font-size: 0.65rem; font-weight: 500; display: block; }
-    .route-chip.best-route .rc-time { color: var(--good); }
     .rc-dist  { font-size: 0.65rem; color: var(--muted); }
     .rc-delay {
       font-size: 0.6rem; font-weight: 600; padding: 2px 6px;
@@ -297,22 +301,24 @@
     .rc-delay.light    { background: #DCFCE7; color: #15803D; }
     .rc-delay.moderate { background: #FEF9C3; color: #92400E; }
     .rc-delay.heavy    { background: #FEE2E2; color: #B91C1C; }
-    /* Right column — route path */
+    /* Right column — vertical dot-and-line timeline */
     .rc-right { flex: 1; min-width: 0; }
     .rc-desc {
       font-size: 0.8rem; font-weight: 700; color: var(--text);
-      margin-bottom: 7px; line-height: 1.3;
+      margin-bottom: 6px; line-height: 1.3;
     }
     .route-chip.best-route .rc-desc { color: #166534; }
-    .rc-waypoints { display: flex; flex-direction: column; gap: 3px; }
-    .rc-wp {
-      font-size: 0.75rem; color: var(--muted); display: flex;
-      align-items: baseline; gap: 5px; line-height: 1.35;
-    }
-    .route-chip.best-route .rc-wp { color: #374151; }
-    .rc-wp-dot { color: var(--primary); font-size: 0.65rem; flex-shrink: 0; }
-    .rc-wp-dist { font-size: 0.65rem; color: var(--muted); opacity: 0.7; margin-left: auto; white-space: nowrap; }
-    .rc-wp-none { font-size: 0.72rem; color: var(--muted); font-style: italic; }
+    .route-chip:hover { border-color: var(--primary); box-shadow: 0 4px 16px rgba(59,111,240,0.1); }
+    .rc-timeline { display: flex; flex-direction: column; }
+    .rt-row  { display: flex; align-items: center; gap: 6px; min-width: 0; }
+    .rt-dot  { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .rt-dot.rt-origin { background: #3B6FF0; }
+    .rt-dot.rt-wp     { background: #CBD5E1; border: 1.5px solid #94A3B8; width: 5px; height: 5px; }
+    .rt-dot.rt-dest   { background: #EF4444; border-radius: 2px; }
+    .rt-line { width: 1.5px; height: 9px; background: #CBD5E1; margin-left: 3px; }
+    .rt-label { font-size: 0.71rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
+    .rt-label.rt-origin-lbl { color: var(--text); font-weight: 600; }
+    .rt-label.rt-dest-lbl   { color: #B91C1C; font-weight: 600; }
 
     /* Route detail panel */
     .route-detail {
@@ -422,6 +428,7 @@
     .ac-item-text .ac-name  { font-weight: 600; color: var(--text); line-height: 1.3; }
     .ac-item-text .ac-addr  { font-size: 0.72rem; color: var(--muted); margin-top: 1px; }
     .ac-item-text .ac-match { color: var(--primary); }
+    .error-msg {
       background: #FEF2F2; border: 1px solid #FECACA;
       border-radius: 9px; padding: 10px 13px;
       font-size: 0.82rem; color: #991B1B; margin-bottom: 10px;
@@ -501,13 +508,21 @@
     }
     .btn-share:hover { background: #dde6ff; }
 
-    /* ── Metro Tip ─────────────── */
+    /* ── Metro Tip — station strip ─────────────── */
     .metro-tip {
       display: none; border-radius: 11px; padding: 11px 14px; margin-top: 10px;
       background: #F5F3FF; border: 1.5px solid #C4B5FD;
-      font-size: 0.8rem; color: #5B21B6; line-height: 1.6;
     }
     .metro-tip.show { display: block; animation: slideIn 0.3s ease; }
+    .ms-header { font-size: 0.78rem; font-weight: 700; color: #5B21B6; margin-bottom: 10px; }
+    .ms-track  { display: flex; align-items: center; overflow-x: auto; padding-bottom: 4px; }
+    .ms-station { display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 64px; max-width: 80px; }
+    .ms-dot { width: 14px; height: 14px; border-radius: 50%; border: 3px solid #7C3AED; background: #fff; flex-shrink: 0; }
+    .ms-dot.ms-origin { background: #3B6FF0; border-color: #3B6FF0; }
+    .ms-dot.ms-dest   { background: #EF4444; border-color: #EF4444; }
+    .ms-name { font-size: 0.65rem; font-weight: 700; color: #5B21B6; text-align: center; line-height: 1.3; }
+    .ms-sub  { font-size: 0.58rem; color: #7C3AED; text-align: center; opacity: 0.75; }
+    .ms-line { flex: 1; height: 3px; background: linear-gradient(90deg,#7C3AED,#C4B5FD); min-width: 14px; border-radius: 2px; }
 
     /* ── Fuel & CO₂ ─────────────── */
     .fuel-inputs { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; margin-top: 8px; }
@@ -527,16 +542,17 @@
     .bt-legend { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
     .bt-legend-item { display: flex; align-items: center; gap: 4px; font-size: 0.65rem; color: var(--muted); }
     .bt-dot { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
-    .bt-grid { display: flex; gap: 2px; align-items: flex-end; height: 64px; }
-    .bt-col  { flex: 1; display: flex; flex-direction: column-reverse; align-items: center; }
-    .bt-bar  { width: 100%; border-radius: 2px 2px 0 0; min-height: 4px; }
-    .bt-bar.clear    { background: #86EFAC; }
-    .bt-bar.light    { background: #FDE047; }
-    .bt-bar.moderate { background: #FB923C; }
-    .bt-bar.heavy    { background: #EF4444; }
-    .bt-hr { font-size: 0.46rem; color: var(--muted); margin-top: 3px; white-space: nowrap; }
-    .bt-col.now .bt-bar { outline: 2px solid var(--primary); outline-offset: 1px; }
-    .bt-col.now .bt-hr  { color: var(--primary); font-weight: 700; }
+    .bt-heatmap { display: flex; gap: 3px; }
+    .bt-cell-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .bt-cell { width: 100%; height: 32px; border-radius: 4px; transition: transform 0.15s; cursor: default; }
+    .bt-cell:hover { transform: scaleY(1.22); }
+    .bt-cell.clear    { background: #86EFAC; }
+    .bt-cell.light    { background: #FDE047; }
+    .bt-cell.moderate { background: #FB923C; }
+    .bt-cell.heavy    { background: #EF4444; }
+    .bt-cell.bt-now   { outline: 2.5px solid var(--primary); outline-offset: 2px; }
+    .bt-cell-hr { font-size: 0.45rem; color: var(--muted); white-space: nowrap; }
+    .bt-cell-hr.bt-now-hr { color: var(--primary); font-weight: 700; }
     .bt-best-time {
       margin-top: 10px; font-size: 0.79rem; line-height: 1.55; padding: 9px 12px;
       background: #F0FDF4; border-radius: 9px; border-left: 3px solid var(--good); color: #166534;
@@ -556,10 +572,9 @@
     @media (max-width: 400px) {
       .routes-grid { gap: 7px; }
       .route-chip  { padding: 10px 10px; gap: 10px; }
-      .rc-left     { width: 80px; padding-right: 9px; }
-      .rc-time     { font-size: 1.1rem; }
+      .rc-left     { width: 70px; padding-right: 8px; }
       .rc-desc     { font-size: 0.75rem; }
-      .rc-wp       { font-size: 0.7rem; }
+      .rt-label    { font-size: 0.67rem; }
     }
   </style>
 </head>
@@ -711,7 +726,7 @@
         <div class="bt-legend-item"><div class="bt-dot" style="background:#FB923C"></div>Moderate</div>
         <div class="bt-legend-item"><div class="bt-dot" style="background:#EF4444"></div>Heavy</div>
       </div>
-      <div class="bt-grid" id="bestTimeGrid"></div>
+      <div class="bt-heatmap" id="bestTimeGrid"></div>
       <div class="bt-best-time" id="btBestTime"></div>
     </div>
 
@@ -1069,15 +1084,42 @@ async function showMetroTip() {
   if (!el || !state.gmapsKey || !state.src || !state.dst) { el?.classList.remove('show'); return; }
   try {
     const [[sLon,sLat],[dLon,dLat]] = await Promise.all([geocode(state.src), geocode(state.dst)]);
-    const near = arr => [...arr].sort((a,b)=>hvKm(sLat,sLon,a.lat,a.lon)-hvKm(sLat,sLon,b.lat,b.lon))[0];
     const nearSrc = METRO_STATIONS.map(s=>({...s,d:hvKm(sLat,sLon,s.lat,s.lon)})).sort((a,b)=>a.d-b.d)[0];
     const nearDst = METRO_STATIONS.map(s=>({...s,d:hvKm(dLat,dLon,s.lat,s.lon)})).sort((a,b)=>a.d-b.d)[0];
     const best = state.routes[0]?.estMins || 0;
     if (nearSrc.d <= 1.5 && nearDst.d <= 1.5 && best >= 20) {
-      el.innerHTML = `🚇 <strong>Namma Metro:</strong> <strong>${nearSrc.name}</strong> (${nearSrc.d.toFixed(1)} km away) → <strong>${nearDst.name}</strong> (${nearDst.d.toFixed(1)} km from destination). Metro could beat current traffic entirely!`;
+      el.innerHTML = `
+        <div class="ms-header">🚇 Namma Metro — faster than traffic</div>
+        <div class="ms-track">
+          <div class="ms-station">
+            <div class="ms-dot ms-origin"></div>
+            <div class="ms-name">${nearSrc.name}</div>
+            <div class="ms-sub">${nearSrc.d.toFixed(1)} km away</div>
+          </div>
+          <div class="ms-line"></div>
+          <div class="ms-station">
+            <div class="ms-dot ms-dest"></div>
+            <div class="ms-name">${nearDst.name}</div>
+            <div class="ms-sub">${nearDst.d.toFixed(1)} km away</div>
+          </div>
+        </div>`;
       el.classList.add('show');
     } else if (nearSrc.d <= 1.0 && best >= 15) {
-      el.innerHTML = `🚇 <strong>${nearSrc.name}</strong> metro is only ${nearSrc.d.toFixed(1)} km from your start. Consider Namma Metro if the destination is on the same line.`;
+      el.innerHTML = `
+        <div class="ms-header">🚇 Namma Metro nearby</div>
+        <div class="ms-track">
+          <div class="ms-station">
+            <div class="ms-dot ms-origin"></div>
+            <div class="ms-name">${nearSrc.name}</div>
+            <div class="ms-sub">${nearSrc.d.toFixed(1)} km from start</div>
+          </div>
+          <div class="ms-line"></div>
+          <div class="ms-station">
+            <div class="ms-dot"></div>
+            <div class="ms-name">Your destination</div>
+            <div class="ms-sub">Check metro map</div>
+          </div>
+        </div>`;
       el.classList.add('show');
     } else {
       el.classList.remove('show');
@@ -1100,12 +1142,11 @@ function renderBestTimeChart() {
   const hours = Array.from({ length: 18 }, (_, i) => i + 6); // 6am–11pm
   el.innerHTML = hours.map(h => {
     const m   = tbl[h] ?? 1;
-    const pct = Math.max(8, (m / maxM) * 100);
     const isNow = h === nowH;
     const lbl = h === 12 ? '12p' : h > 12 ? `${h-12}p` : `${h}a`;
-    return `<div class="bt-col${isNow ? ' now' : ''}">
-      <div class="bt-bar ${cls(m)}" style="height:${pct}%"></div>
-      <div class="bt-hr">${lbl}</div>
+    return `<div class="bt-cell-wrap">
+      <div class="bt-cell ${cls(m)}${isNow ? ' bt-now' : ''}"></div>
+      <div class="bt-cell-hr${isNow ? ' bt-now-hr' : ''}">${lbl}</div>
     </div>`;
   }).join('');
   // Find best 2-hr window
@@ -1590,25 +1631,36 @@ function renderResults(src, dst) {
       ? r.desc.replace(/^via\s*/i, 'Via ')
       : (r.via ? r.via.replace(/^via\s*/i, 'Via ') : ('Route ' + (i + 1)));
 
-    // Ordered named waypoints with distances
-    const wpHtml = r.waypoints.length
-      ? r.waypoints.map(w => {
-          const d = w.dist >= 1000 ? (w.dist / 1000).toFixed(1) + ' km' : Math.round(w.dist) + ' m';
-          return `<div class="rc-wp"><span class="rc-wp-dot">\u25B8</span>${w.name}<span class="rc-wp-dist">${d}</span></div>`;
-        }).join('')
-      : '<div class="rc-wp-none">Tap card for turn-by-turn details \u2193</div>';
+    // SVG ring gauge (arc length = proportion of static vs estimate time)
+    const _C = 150.8;
+    const _arcLen = Math.max(20, Math.min(_C - 6, (r.staticMins / Math.max(r.estMins, 1)) * _C));
+    const _ringColor = delayCls === 'light' ? '#22C55E' : delayCls === 'moderate' ? '#F59E0B' : '#EF4444';
+    // Vertical dot-and-line timeline
+    const _srcShort = src.split(',')[0].trim().substring(0, 20);
+    const _dstShort = dst.split(',')[0].trim().substring(0, 20);
+    let _tlHtml = `<div class="rt-row"><div class="rt-dot rt-origin"></div><div class="rt-label rt-origin-lbl">${_srcShort}</div></div>`;
+    r.waypoints.forEach(w => {
+      _tlHtml += `<div class="rt-line"></div><div class="rt-row"><div class="rt-dot rt-wp"></div><div class="rt-label">${w.name.substring(0,20)}</div></div>`;
+    });
+    _tlHtml += `<div class="rt-line"></div><div class="rt-row"><div class="rt-dot rt-dest"></div><div class="rt-label rt-dest-lbl">${_dstShort}</div></div>`;
 
     return `
     <div class="route-chip ${i === 0 ? 'best-route' : ''}" onclick="highlightRoute(${i})" style="cursor:pointer">
       <div class="rc-left">
         ${badgeHtml}
-        <div class="rc-time">${r.estMins}<span class="rc-unit">min</span></div>
+        <svg class="rc-ring" viewBox="0 0 60 60" width="60" height="60">
+          <circle cx="30" cy="30" r="24" fill="none" stroke="var(--border)" stroke-width="6"/>
+          <circle cx="30" cy="30" r="24" fill="none" stroke="${_ringColor}" stroke-width="6" stroke-linecap="round"
+            stroke-dasharray="${_arcLen.toFixed(1)} ${_C}" transform="rotate(-90 30 30)"/>
+          <text x="30" y="27" text-anchor="middle" font-size="12" font-weight="800" fill="var(--text)">${r.estMins}</text>
+          <text x="30" y="39" text-anchor="middle" font-size="8" fill="var(--muted)">min</text>
+        </svg>
         <div class="rc-dist">${r.distKm} km</div>
         <div class="rc-delay ${delayCls}">${delayTxt}</div>
       </div>
       <div class="rc-right">
         <div class="rc-desc">${heading}</div>
-        <div class="rc-waypoints">${wpHtml}</div>
+        <div class="rc-timeline">${_tlHtml}</div>
       </div>
     </div>`;
   }).join('');
