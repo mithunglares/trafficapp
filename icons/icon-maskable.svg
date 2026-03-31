@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Full bleed background (maskable — no rounded corners, safe zone is center 80%) -->
+  <rect width="512" height="512" fill="#3B6FF0"/>
+  <rect width="512" height="512" fill="url(#grad)" opacity="0.3"/>
+  <defs>
+    <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#818CF8"/>
+      <stop offset="100%" stop-color="#3B6FF0" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <!-- Traffic light housing — centered in safe zone -->
+  <rect x="198" y="92" width="116" height="268" rx="30" fill="#0F172A"/>
+  <!-- Red light -->
+  <circle cx="256" cy="150" r="36" fill="#EF4444" opacity="0.35"/>
+  <circle cx="256" cy="150" r="26" fill="#EF4444"/>
+  <!-- Amber light -->
+  <circle cx="256" cy="226" r="36" fill="#F59E0B" opacity="0.35"/>
+  <circle cx="256" cy="226" r="26" fill="#F59E0B"/>
+  <!-- Green light (active) -->
+  <circle cx="256" cy="302" r="36" fill="#22C55E" opacity="0.35"/>
+  <circle cx="256" cy="302" r="26" fill="#22C55E"/>
+  <circle cx="246" cy="292" r="7" fill="#FFFFFF" opacity="0.5"/>
+  <!-- Pole -->
+  <rect x="244" y="360" width="24" height="48" rx="8" fill="#0F172A"/>
+  <rect x="204" y="400" width="104" height="18" rx="8" fill="#0F172A"/>
+</svg>

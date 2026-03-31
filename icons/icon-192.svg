@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <!-- Background -->
+  <rect width="192" height="192" rx="38" fill="#3B6FF0"/>
+  <!-- Subtle gradient overlay -->
+  <rect width="192" height="192" rx="38" fill="url(#grad)" opacity="0.3"/>
+  <defs>
+    <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#818CF8"/>
+      <stop offset="100%" stop-color="#3B6FF0" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <!-- Traffic light housing -->
+  <rect x="70" y="28" width="52" height="116" rx="14" fill="#0F172A"/>
+  <!-- Red light -->
+  <circle cx="96" cy="54" r="16" fill="#EF4444" opacity="0.35"/>
+  <circle cx="96" cy="54" r="12" fill="#EF4444"/>
+  <!-- Amber light -->
+  <circle cx="96" cy="86" r="16" fill="#F59E0B" opacity="0.35"/>
+  <circle cx="96" cy="86" r="12" fill="#F59E0B"/>
+  <!-- Green light (brightest - active) -->
+  <circle cx="96" cy="118" r="16" fill="#22C55E" opacity="0.35"/>
+  <circle cx="96" cy="118" r="12" fill="#22C55E"/>
+  <circle cx="92" cy="114" r="3" fill="#FFFFFF" opacity="0.5"/>
+  <!-- Pole -->
+  <rect x="90" y="144" width="12" height="22" rx="4" fill="#0F172A"/>
+  <rect x="72" y="162" width="48" height="8" rx="4" fill="#0F172A"/>
+</svg>

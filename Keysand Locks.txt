@@ -1,0 +1,18 @@
+
+1. Anything to add in the current Sandbox so that we have quality Demos
+	If VuBank is limiting then we need to create a good sandbox environment, to have all the usecases.
+	We need to have more logging capability in the new version of VuChaosBank
+	
+2. Installation Experience: 
+	A video of the demo to understand the first telemetry
+	1. We should behave like a proxy to a customer.
+	
+	2. OmniAgent/App360/Vulogx
+	
+	3. How easy is it to Migrate
+	
+	4. Customizations: How to mask PII data
+	
+AIzaSyDrF3g7cKbg_IUHwKclTJZntNCCs5sjW8g - Google
+AIzaSyDNXSBHCxSGarsqRGHvOmBw0TPW7spn5eA - Gemini
+33104d95-f5bf-4d38-9bd2-6ac7e87e1b74 - Crickapi

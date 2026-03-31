@@ -1,0 +1,1440 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BLR Smart Traffic Assistant</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#3B6FF0" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="BLR Traffic" />
+  <link rel="apple-touch-icon" href="icons/icon-512.svg" />
+  <meta name="description" content="Real-time Bangalore traffic routing with Google Maps and Gemini AI" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:            #F4F7FF;
+      --card:          #FFFFFF;
+      --primary:       #3B6FF0;
+      --primary-light: #EEF2FF;
+      --accent:        #FF6B35;
+      --good:          #22C55E;
+      --warn:          #F59E0B;
+      --danger:        #EF4444;
+      --text:          #1A2332;
+      --muted:         #64748B;
+      --border:        #E2E8F0;
+      --shadow:        0 4px 24px rgba(59,111,240,0.08);
+      --r:             16px;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; padding: 20px 16px 60px;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .w { width: 100%; max-width: 580px; }
+
+    /* Header */
+    .header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 20px; width: 100%; max-width: 580px;
+    }
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .logo {
+      width: 46px; height: 46px;
+      background: linear-gradient(135deg, var(--primary), #818CF8);
+      border-radius: 13px; display: grid; place-items: center;
+      font-size: 22px; box-shadow: 0 4px 14px rgba(59,111,240,0.3);
+    }
+    .header h1 { font-size: 1.2rem; font-weight: 700; }
+    .header p  { font-size: 0.75rem; color: var(--muted); margin-top: 1px; }
+    .traffic-pill {
+      padding: 6px 14px; border-radius: 999px;
+      font-size: 0.75rem; font-weight: 600;
+      display: flex; align-items: center; gap: 5px; white-space: nowrap;
+    }
+    .pill-clear  { background: #DCFCE7; color: #16A34A; }
+    .pill-medium { background: #FEF9C3; color: #B45309; }
+    .pill-heavy  { background: #FEE2E2; color: #DC2626; }
+
+    /* Card */
+    .card {
+      background: var(--card); border-radius: var(--r);
+      border: 1px solid var(--border); box-shadow: var(--shadow);
+      padding: 22px 20px; width: 100%; max-width: 580px; margin-bottom: 14px;
+    }
+    .card-title {
+      font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.6px; color: var(--muted); margin-bottom: 14px;
+      display: flex; align-items: center; gap: 6px;
+    }
+
+    /* Setup panel */
+    .setup-toggle {
+      width: 100%; max-width: 580px; background: none;
+      border: 1.5px dashed var(--border); border-radius: 12px;
+      padding: 10px 16px; font-family: inherit; font-size: 0.82rem;
+      color: var(--muted); cursor: pointer; margin-bottom: 14px;
+      display: flex; align-items: center; gap: 7px; transition: border-color 0.2s;
+    }
+    .setup-toggle:hover { border-color: var(--primary); color: var(--primary); }
+    .setup-panel { display: none; }
+    .setup-panel.open { display: block; }
+    .setup-note {
+      font-size: 0.76rem; color: var(--muted); background: #F8FAFF;
+      border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; line-height: 1.65;
+    }
+    .setup-note a { color: var(--primary); }
+
+    /* Fields */
+    .field { margin-bottom: 12px; }
+    .field label { display: block; font-size: 0.76rem; font-weight: 500; color: var(--muted); margin-bottom: 5px; }
+    .input-row { display: flex; gap: 8px; }
+    .input-row input { flex: 1; }
+    input[type=text], input[type=number], input[type=time], input[type=password] {
+      width: 100%; padding: 10px 13px;
+      border: 1.5px solid var(--border); border-radius: 10px;
+      font-family: inherit; font-size: 0.88rem; color: var(--text);
+      background: #FAFBFF; outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(59,111,240,0.1); background: #fff;
+    }
+    input::placeholder { color: #B0BAC9; }
+    hr.div { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+
+    /* Buttons */
+    .btn-primary {
+      display: block; width: 100%; padding: 12px;
+      background: linear-gradient(135deg, var(--primary), #818CF8);
+      color: #fff; border: none; border-radius: 11px;
+      font-family: inherit; font-size: 0.93rem; font-weight: 600; cursor: pointer;
+      box-shadow: 0 4px 14px rgba(59,111,240,0.3);
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .btn-primary:hover  { opacity: 0.91; transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .btn-secondary {
+      padding: 8px 14px; background: var(--primary-light); color: var(--primary);
+      border: none; border-radius: 9px; font-family: inherit;
+      font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: background 0.2s;
+      white-space: nowrap;
+    }
+    .btn-secondary:hover { background: #dde6ff; }
+    .btn-voice {
+      padding: 9px 11px; background: var(--primary-light); color: var(--primary);
+      border: none; border-radius: 9px; cursor: pointer; font-size: 16px; line-height: 1;
+      transition: background 0.2s; flex-shrink: 0;
+    }
+    .btn-voice:hover { background: #dde6ff; }
+    .btn-voice.recording { background: #FEE2E2; color: var(--danger); animation: pulse 1s infinite; }
+    .btn-save {
+      padding: 10px 20px; background: var(--good); color: #fff;
+      border: none; border-radius: 10px; font-family: inherit;
+      font-size: 0.86rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s;
+    }
+    .btn-save:hover { opacity: 0.88; }
+    .btn-test {
+      padding: 9px 13px; background: #F1F5F9; color: var(--muted);
+      border: 1.5px solid var(--border); border-radius: 9px; font-family: inherit;
+      font-size: 0.8rem; font-weight: 600; cursor: pointer; flex-shrink: 0;
+      transition: all 0.2s;
+    }
+    .btn-test:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+    .btn-test:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-test-all {
+      padding: 10px 18px; background: #FFF7ED; color: #C2410C;
+      border: 1.5px solid #FED7AA; border-radius: 10px; font-family: inherit;
+      font-size: 0.86rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s;
+    }
+    .btn-test-all:hover { opacity: 0.85; }
+    .test-result {
+      font-size: 0.76rem; margin-top: 5px; padding: 6px 10px;
+      border-radius: 7px; display: none; line-height: 1.5;
+    }
+    .test-result.show { display: block; }
+    .test-ok   { background: #DCFCE7; color: #15803D; }
+    .test-fail { background: #FEF2F2; color: #991B1B; }
+    .test-wait { background: #F1F5F9; color: var(--muted); }
+    .btn-send {
+      padding: 10px 16px; background: var(--primary); color: #fff;
+      border: none; border-radius: 10px; font-family: inherit;
+      font-size: 0.88rem; font-weight: 600; cursor: pointer;
+      transition: opacity 0.2s; flex-shrink: 0;
+    }
+    .btn-send:hover { opacity: 0.88; }
+    .btn-send:disabled { opacity: 0.5; cursor: not-allowed; }
+    @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+
+    /* IPL Banner */
+    .ipl-banner {
+      display: none;
+      background: linear-gradient(135deg, #6366F1, #8B5CF6);
+      color: #fff; border-radius: var(--r);
+      padding: 14px 18px; margin-bottom: 14px;
+      width: 100%; max-width: 580px;
+    }
+    .ipl-banner.show { display: block; animation: slideIn 0.4s ease; }
+    .ipl-title { font-size: 0.85rem; font-weight: 700; margin-bottom: 4px; }
+    .ipl-msg   { font-size: 0.78rem; opacity: 0.92; line-height: 1.55; }
+
+    /* Results */
+    .results-section { display: none; width: 100%; max-width: 580px; }
+    .results-section.show { display: block; animation: slideIn 0.35s ease; }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Route chips */
+    .routes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin-bottom: 14px; }
+    .route-chip {
+      border: 2px solid var(--border); border-radius: 13px;
+      padding: 13px 10px; text-align: center; background: #FAFBFF;
+    }
+    .route-chip.best-route { border-color: var(--good); background: #F0FDF4; }
+    .rc-label { font-size: 0.68rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 5px; }
+    .rc-time  { font-size: 1.05rem; font-weight: 700; color: var(--text); }
+    .route-chip.best-route .rc-time { color: var(--good); }
+    .rc-dist  { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
+    .rc-via   {
+      font-size: 0.62rem; color: var(--muted); margin-top: 3px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      max-width: 100%; line-height: 1.3;
+    }
+    .route-chip.best-route .rc-via { color: #15803D; }
+    .rc-best  { font-size: 0.65rem; font-weight: 700; color: var(--good); margin-top: 3px; }
+
+    /* Route detail panel */
+    .route-detail {
+      background: #F8FAFF; border-radius: 11px; padding: 11px 14px;
+      margin-bottom: 14px; font-size: 0.8rem; line-height: 1.65;
+      border: 1px solid var(--border); display: none;
+    }
+    .route-detail.show { display: block; }
+    .rd-header {
+      font-weight: 700; color: var(--primary); margin-bottom: 6px;
+      display: flex; align-items: center; gap: 8px; font-size: 0.83rem;
+    }
+    .rd-steps { display: flex; flex-direction: column; gap: 3px; }
+    .rd-step  {
+      display: flex; align-items: flex-start; gap: 7px;
+      padding: 3px 0; border-bottom: 1px solid var(--border);
+    }
+    .rd-step:last-child { border-bottom: none; }
+    .rd-step-icon { flex-shrink: 0; font-size: 13px; margin-top: 1px; }
+    .rd-step-name { font-weight: 500; color: var(--text); flex: 1; }
+    .rd-step-dist { color: var(--muted); font-size: 0.72rem; white-space: nowrap; margin-left: 6px; }
+
+    /* Traffic context */
+    .traffic-context {
+      background: var(--primary-light); border-radius: 12px;
+      padding: 13px 15px;
+      display: flex; align-items: flex-start; gap: 12px;
+    }
+    .tc-icon { font-size: 24px; flex-shrink: 0; }
+    .tc-text { font-size: 0.85rem; line-height: 1.6; }
+    .tc-text strong { color: var(--primary); }
+
+    /* Leave-by */
+    .leaveby-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .leaveby-row label { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
+    .leaveby-row input[type=time] { width: 130px; flex-shrink: 0; }
+    .leaveby-result {
+      margin-top: 10px; font-size: 0.88rem; line-height: 1.6;
+      background: #F9FAFB; border-radius: 9px; padding: 10px 13px; display: none;
+    }
+    .leaveby-result.show { display: block; }
+    .leaveby-result strong { color: var(--primary); }
+
+    /* Chat */
+    .chat-messages {
+      background: #F8FAFF; border-radius: 11px; padding: 12px;
+      min-height: 80px; max-height: 320px; overflow-y: auto;
+      margin-bottom: 10px; display: flex; flex-direction: column; gap: 9px;
+    }
+    .chat-empty { font-size: 0.82rem; color: var(--muted); text-align: center; padding: 20px 0; }
+    .msg { max-width: 88%; padding: 9px 13px; border-radius: 12px; font-size: 0.84rem; line-height: 1.6; white-space: pre-wrap; }
+    .msg-user {
+      background: linear-gradient(135deg, var(--primary), #818CF8);
+      color: #fff; align-self: flex-end; border-bottom-right-radius: 4px;
+    }
+    .msg-bot {
+      background: #fff; color: var(--text);
+      border: 1px solid var(--border); align-self: flex-start; border-bottom-left-radius: 4px;
+    }
+    .msg-typing { color: var(--muted); font-style: italic; font-size: 0.78rem; }
+    .chat-input-row { display: flex; gap: 8px; }
+    .chat-input-row input { flex: 1; }
+
+    /* History */
+    .history-list { display: flex; flex-direction: column; gap: 7px; }
+    .history-item {
+      display: flex; justify-content: space-between; align-items: center;
+      background: #F8FAFF; border-radius: 9px; padding: 9px 12px; font-size: 0.8rem;
+    }
+    .hi-route { font-weight: 600; }
+    .hi-meta  { color: var(--muted); font-size: 0.72rem; margin-top: 1px; }
+    .hi-time  { font-size: 0.88rem; font-weight: 700; color: var(--primary); white-space: nowrap; }
+    .history-empty { font-size: 0.82rem; color: var(--muted); text-align: center; padding: 12px 0; }
+    .history-header { display: flex; justify-content: space-between; align-items: center; }
+    .btn-clear { font-size: 0.72rem; color: var(--muted); background: none; border: none; cursor: pointer; text-decoration: underline; }
+    .btn-clear:hover { color: var(--danger); }
+
+    /* Tips */
+    .tips-ticker {
+      width: 100%; max-width: 580px;
+      background: linear-gradient(135deg, #FFF7ED, #FFFBF5);
+      border: 1px solid #FED7AA; border-radius: 12px;
+      padding: 11px 16px; font-size: 0.78rem; color: #92400E;
+      display: flex; align-items: center; gap: 8px; margin-top: 4px;
+      transition: opacity 0.4s;
+    }
+    .tip-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; flex-shrink: 0; }
+
+    /* Autocomplete dropdown */
+    .ac-wrap { position: relative; }
+    .ac-dropdown {
+      position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+      background: #fff; border: 1.5px solid var(--border); border-radius: 11px;
+      box-shadow: 0 8px 24px rgba(59,111,240,0.12);
+      list-style: none; margin: 0; padding: 4px 0;
+      z-index: 999; max-height: 220px; overflow-y: auto; display: none;
+    }
+    .ac-dropdown.open { display: block; }
+    .ac-item {
+      padding: 9px 14px; cursor: pointer; font-size: 0.84rem;
+      display: flex; align-items: flex-start; gap: 9px;
+      border-bottom: 1px solid #F1F5F9; transition: background 0.15s;
+    }
+    .ac-item:last-child { border-bottom: none; }
+    .ac-item:hover, .ac-item.active { background: var(--primary-light); }
+    .ac-item-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+    .ac-item-text .ac-name  { font-weight: 600; color: var(--text); line-height: 1.3; }
+    .ac-item-text .ac-addr  { font-size: 0.72rem; color: var(--muted); margin-top: 1px; }
+    .ac-item-text .ac-match { color: var(--primary); }
+      background: #FEF2F2; border: 1px solid #FECACA;
+      border-radius: 9px; padding: 10px 13px;
+      font-size: 0.82rem; color: #991B1B; margin-bottom: 10px;
+    }
+    .spinner {
+      display: inline-block; width: 16px; height: 16px;
+      border: 2.5px solid rgba(255,255,255,0.35); border-top-color: #fff;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+      vertical-align: middle; margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 400px) {
+      .routes-grid { gap: 6px; }
+      .route-chip  { padding: 10px 6px; }
+      .rc-time     { font-size: 0.95rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <div class="logo">🚦</div>
+      <div>
+        <h1>BLR Smart Traffic</h1>
+        <p>Bangalore &middot; <span id="liveTime">--:--</span> &middot; <span id="liveDay">--</span></p>
+      </div>
+    </div>
+    <div class="traffic-pill pill-medium" id="trafficPill">🟡 Loading...</div>
+  </div>
+
+  <!-- API SETUP TOGGLE -->
+  <button class="setup-toggle w" onclick="toggleSetup()">
+    ⚙️ API Setup
+    <span id="setupStatus" style="color:var(--warn)">· not configured</span>
+  </button>
+
+  <!-- API SETUP PANEL -->
+  <div class="setup-panel card" id="setupPanel">
+    <div class="setup-note">
+      &bull; <strong>Google Maps Key</strong>: Go to
+        <a href="https://console.cloud.google.com" target="_blank" rel="noopener">console.cloud.google.com</a>
+        &rarr; APIs &amp; Services &rarr; Library &rarr; enable <em>Geocoding API</em>, <em>Routes API</em>, <em>Places API (New)</em>.
+        Then Credentials &rarr; Create API Key.<br/>
+      &bull; <strong>Gemini Key</strong>: Get free key at
+        <a href="https://aistudio.google.com" target="_blank" rel="noopener">aistudio.google.com</a>
+        &rarr; Get API Key &nbsp;(1,500 free calls/day)
+    </div>
+    <div class="field">
+      <label>Google Maps API Key</label>
+      <div class="input-row">
+        <input type="password" id="gmapsKey" placeholder="Paste your Google Maps API key here..." autocomplete="off" />
+        <button class="btn-test" id="testGMapsBtn" onclick="testGMaps()">Test</button>
+      </div>
+      <div class="test-result" id="gmapsTestResult"></div>
+    </div>
+    <div class="field">
+      <label>Google Gemini API Key</label>
+      <div class="input-row">
+        <input type="password" id="geminiKey" placeholder="Paste your Gemini key here..." autocomplete="off" />
+        <button class="btn-test" id="testGeminiBtn" onclick="testGemini()">Test</button>
+      </div>
+      <div class="test-result" id="geminiTestResult"></div>
+    </div>
+    <div class="field">
+      <label>CricAPI Key <span style="font-weight:400;color:var(--muted);">(optional &mdash; for live IPL traffic alert)</span></label>
+      <div class="input-row">
+        <input type="password" id="cricKey" placeholder="Paste your CricAPI key here (free at cricapi.com)..." autocomplete="off" />
+        <button class="btn-test" id="testCricBtn" onclick="testCricAPI()">Test</button>
+      </div>
+      <div class="test-result" id="cricTestResult"></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px;">
+      <button class="btn-save" onclick="saveKeys()">Save Keys</button>
+      <button class="btn-test-all" onclick="testBoth()">&#128293; Test Both</button>
+    </div>
+    <div id="saveMsg" style="display:none;font-size:0.78rem;color:var(--good);margin-top:8px;">&#10003; Keys saved!</div>
+  </div>
+
+  <!-- MAIN INPUT CARD -->
+  <div class="card w">
+    <div class="card-title">📍 Where are you headed?</div>
+    <div class="field">
+      <label>From</label>
+      <div class="ac-wrap">
+        <div class="input-row">
+          <input type="text" id="source" placeholder="e.g. Koramangala 5th Block"
+                 autocomplete="off" oninput="acInput('source','acSrc')" onkeydown="acKey(event,'acSrc')" />
+          <button class="btn-voice" id="voiceSrc" onclick="startVoice('source','voiceSrc')" title="Voice input">🎤</button>
+        </div>
+        <ul class="ac-dropdown" id="acSrc"></ul>
+      </div>
+    </div>
+    <div class="field">
+      <label>To</label>
+      <div class="ac-wrap">
+        <div class="input-row">
+          <input type="text" id="destination" placeholder="e.g. Whitefield ITPL"
+                 autocomplete="off" oninput="acInput('destination','acDst')" onkeydown="acKey(event,'acDst')" />
+          <button class="btn-voice" id="voiceDst" onclick="startVoice('destination','voiceDst')" title="Voice input">🎤</button>
+        </div>
+        <ul class="ac-dropdown" id="acDst"></ul>
+      </div>
+    </div>
+    <div id="findError" class="error-msg" style="display:none;"></div>
+    <button class="btn-primary" id="findBtn" onclick="findRoute()">🗺 Find Best Route</button>
+  </div>
+
+  <!-- IPL NIGHT MODE BANNER -->
+  <div class="ipl-banner w" id="iplBanner">
+    <div class="ipl-title">🏏 IPL Night Mode Active — RCB plays at Chinnaswamy tonight!</div>
+    <div class="ipl-msg">
+      Expect heavy post-match traffic near MG Road, Brigade Road, Cubbon Park &amp; Residency Road from ~10 PM.
+      Plan to leave before 9:45 PM or after 11:30 PM to avoid the surge.
+    </div>
+  </div>
+
+  <!-- RESULTS SECTION -->
+  <div class="results-section w" id="resultsSection">
+
+    <div class="card">
+      <div class="card-title" style="flex-wrap:wrap;gap:4px;">
+        🗺 Routes
+        <span id="routesTripLabel" style="text-transform:none;letter-spacing:0;font-weight:600;color:var(--text);font-size:0.82rem;"></span>
+      </div>
+      <div class="routes-grid" id="routesGrid"></div>
+      <div class="route-detail" id="routeDetail"></div>
+      <div class="traffic-context" id="trafficContext"></div>
+    </div>
+
+    <!-- Leave-By Calculator -->
+    <div class="card">
+      <div class="card-title">⏰ Leave-By Calculator</div>
+      <div class="leaveby-row">
+        <label>Arrive by</label>
+        <input type="time" id="arrivalTime" />
+        <button class="btn-secondary" onclick="calcLeaveBy()">Calculate</button>
+      </div>
+      <div class="leaveby-result" id="leaveByResult"></div>
+    </div>
+
+  </div>
+
+  <!-- GEMINI CHAT -->
+  <div class="card w">
+    <div class="card-title">
+      💬 Ask the Traffic Assistant
+      <span style="font-size:0.68rem;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">&nbsp;· Gemini AI</span>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-empty">
+        Ask me anything about Bangalore traffic! 🚦<br/>
+        e.g. &ldquo;Is ORR better in evenings?&rdquo; &nbsp;or&nbsp; &ldquo;Best time to go to Electronic City?&rdquo;
+      </div>
+    </div>
+    <div class="chat-input-row">
+      <input type="text" id="chatInput" placeholder="Ask about routes, timings, shortcuts..."
+             onkeydown="if(event.key==='Enter')sendChat()" />
+      <button class="btn-voice" onclick="startVoice('chatInput',null)" title="Voice input">🎤</button>
+      <button class="btn-send" id="sendBtn" onclick="sendChat()">Send</button>
+    </div>
+  </div>
+
+  <!-- JOURNEY HISTORY -->
+  <div class="card w">
+    <div class="history-header card-title" style="margin-bottom:12px;">
+      <span>📊 Recent Journeys</span>
+      <button class="btn-clear" onclick="clearHistory()">Clear all</button>
+    </div>
+    <div class="history-list" id="historyList"></div>
+  </div>
+
+  <!-- TIPS TICKER -->
+  <div class="tips-ticker w">
+    <div class="tip-dot"></div>
+    <span id="tipText">Loading Bangalore traffic tip...</span>
+  </div>
+
+<script>
+// ════════════════════════════════════════════════
+// CONFIG & STATE
+// ════════════════════════════════════════════════
+const GEMINI_MODEL  = 'gemini-2.0-flash';
+const GMAPS_BASE    = 'https://maps.googleapis.com/maps/api';
+const GMAPS_ROUTES  = 'https://routes.googleapis.com/directions/v2:computeRoutes';
+const GMAPS_PLACES  = 'https://places.googleapis.com/v1/places:autocomplete';
+const CRICAPI_BASE  = 'https://api.cricapi.com/v1';
+const BLORE         = { lat: 12.9716, lon: 77.5946 };
+
+const state = {
+  gmapsKey:    localStorage.getItem('gmaps_key')   || '',
+  geminiKey:   localStorage.getItem('gemini_key')  || '',
+  cricKey:     localStorage.getItem('cric_key')    || '',
+  routes:      [],
+  bestTime:    null,
+  src:         '',
+  dst:         '',
+  multiplier:  1.0,
+  chatHistory: [],
+  iplTonight:  false,
+  iplMatchName: ''
+};
+
+// ════════════════════════════════════════════════
+// BANGALORE HOURLY TRAFFIC MULTIPLIERS
+// Calibrated to real Bangalore peak patterns
+// ════════════════════════════════════════════════
+const WEEKDAY = {
+   0:0.65, 1:0.60, 2:0.58, 3:0.60, 4:0.65, 5:0.72,
+   6:0.90, 7:1.40, 8:1.90, 9:1.75,10:1.30,11:1.15,
+  12:1.25,13:1.30,14:1.20,15:1.30,16:1.55,17:2.10,
+  18:2.30,19:2.15,20:1.80,21:1.45,22:1.15,23:0.85
+};
+const WEEKEND = {
+   0:0.62, 1:0.55, 2:0.53, 3:0.55, 4:0.60, 5:0.65,
+   6:0.72, 7:0.80, 8:0.92, 9:1.05,10:1.15,11:1.22,
+  12:1.30,13:1.25,14:1.15,15:1.18,16:1.25,17:1.40,
+  18:1.50,19:1.42,20:1.28,21:1.10,22:0.88,23:0.70
+};
+
+// IPL 2026 — replaced by live CricAPI fetch (see checkIPLLive)
+// Kept as a fallback in case CricAPI key is not configured
+const RCB_HOME_GAMES_FALLBACK = [
+  '2026-03-25','2026-03-31','2026-04-06','2026-04-12',
+  '2026-04-19','2026-04-26','2026-05-03','2026-05-10',
+  '2026-05-17','2026-05-22'
+];
+
+// Rotating Bangalore traffic tips
+const TIPS = [
+  'Silk Board Junction is Bangalore\'s worst bottleneck — avoid it 5–9 PM on weekdays.',
+  'The Outer Ring Road (ORR) moves better than inner roads during peak hours.',
+  'Electronic City flyover is fastest before 8 AM or after 9 PM.',
+  'Hebbal flyover gets badly jammed northbound after 5 PM — try the Bellary Road service road.',
+  'Post-IPL at Chinnaswamy: allow 45–60 extra minutes near MG Road and Brigade Road.',
+  'Trinity Circle → Ulsoor Road is a handy shortcut when Residency Road is clogged.',
+  'Marathahalli bridge backup starts as early as 4:30 PM on weekdays.',
+  'Friday evenings are consistently 20–30% worse than regular weekday evenings.',
+  'Namma Metro is your best bet if your route has a nearby station.',
+  'Whitefield–ITPL traffic builds from 8:30 AM — leave by 8 AM for a smooth ride.',
+  'Mysore Road near Nice Road junction is rough on weekday mornings — take the flyover.',
+  'Hebbal–Yelahanka corridor stays smooth after 9 PM even during peak season.'
+];
+
+// ════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════
+function init() {
+  if (state.gmapsKey)  document.getElementById('gmapsKey').value  = state.gmapsKey;
+  if (state.geminiKey) document.getElementById('geminiKey').value = state.geminiKey;
+  if (state.cricKey)   document.getElementById('cricKey').value   = state.cricKey;
+  updateSetupStatus();
+  updateClock();
+  setInterval(updateClock, 30000);
+  rotateTips();
+  setInterval(rotateTips, 8000);
+  renderHistory();
+  checkIPLLive(); // replaces old hardcoded checkIPL()
+}
+
+// ════════════════════════════════════════════════
+// CLOCK & TRAFFIC PILL
+// ════════════════════════════════════════════════
+function updateClock() {
+  const now = new Date();
+  document.getElementById('liveTime').textContent =
+    now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+  document.getElementById('liveDay').textContent =
+    now.toLocaleDateString('en-IN', { weekday: 'long' });
+  state.multiplier = getMultiplier(now);
+  updateTrafficPill();
+}
+
+function getMultiplier(date) {
+  const hour      = date.getHours();
+  const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+  let m = isWeekend ? WEEKEND[hour] : WEEKDAY[hour];
+  if (state.iplTonight && hour >= 21 && hour <= 23) m = Math.min(m * 1.4, 3.0);
+  return m;
+}
+
+function getTrafficInfo(m) {
+  if (m < 0.85) return { label: '🟢 Clear Roads',   cls: 'pill-clear',  desc: 'Roads are nice and clear right now'       };
+  if (m < 1.25) return { label: '🟡 Light Traffic',  cls: 'pill-clear',  desc: 'Light traffic — good time to travel'      };
+  if (m < 1.65) return { label: '🟠 Moderate',        cls: 'pill-medium', desc: 'Moderate congestion on major roads'        };
+  if (m < 2.10) return { label: '🔴 Heavy Traffic',   cls: 'pill-heavy',  desc: 'Heavy traffic — significant delays ahead' };
+  return             { label: '🔴 Rush Hour!',        cls: 'pill-heavy',  desc: 'Peak rush hour — roads are heavily jammed' };
+}
+
+function updateTrafficPill() {
+  const { label, cls } = getTrafficInfo(state.multiplier);
+  const el = document.getElementById('trafficPill');
+  el.textContent = label;
+  el.className   = 'traffic-pill ' + cls;
+}
+
+// ════════════════════════════════════════════════
+// IPL DETECTION — live via CricAPI
+// ════════════════════════════════════════════════
+async function checkIPLLive() {
+  const today     = new Date().toISOString().slice(0, 10);
+  const cacheKey  = `ipl_cache_${today}`;
+  const cached    = localStorage.getItem(cacheKey);
+
+  if (cached) {
+    // Use cached result for today to preserve API quota
+    // Only trust cache entries that came from a real CricAPI call (have 'source' field)
+    const parsed = JSON.parse(cached);
+    if (parsed.source === 'cricapi') {
+      const { isMatch, matchName } = parsed;
+      state.iplTonight   = isMatch;
+      state.iplMatchName = matchName || '';
+      if (isMatch) showIPLBanner(matchName);
+      return;
+    }
+    // Stale/fallback cache — discard it and re-fetch
+    localStorage.removeItem(cacheKey);
+  }
+
+  if (!state.cricKey) {
+    // No CricAPI key — don't show the banner. We can't confirm a match.
+    state.iplTonight = false;
+    return;
+  }
+
+  try {
+    const res  = await fetch(`${CRICAPI_BASE}/matches?apikey=${encodeURIComponent(state.cricKey)}&offset=0`);
+    if (!res.ok) throw new Error('CricAPI fetch failed');
+    const data = await res.json();
+    const matches = data.data || [];
+
+    // Look for an RCB match today at Chinnaswamy / Bengaluru
+    const tonight = matches.find(m => {
+      const matchDate = (m.date || m.dateTimeGMT || '').slice(0, 10);
+      const name      = (m.name || '').toLowerCase();
+      const venue     = (m.venue || '').toLowerCase();
+      const isToday   = matchDate === today;
+      const isRCB     = name.includes('rcb') || name.includes('royal challengers');
+      const isHome    = venue.includes('chinnaswamy') || venue.includes('bengaluru') || venue.includes('bangalore');
+      return isToday && isRCB && isHome;
+    });
+
+    const isMatch   = !!tonight;
+    const matchName = tonight ? tonight.name : '';
+    state.iplTonight   = isMatch;
+    state.iplMatchName = matchName;
+
+    // Cache for the rest of today (expires at midnight)
+    localStorage.setItem(cacheKey, JSON.stringify({ isMatch, matchName, source: 'cricapi' }));
+    // Clean up old cache keys
+    Object.keys(localStorage).filter(k => k.startsWith('ipl_cache_') && k !== cacheKey)
+      .forEach(k => localStorage.removeItem(k));
+
+    if (isMatch) showIPLBanner(matchName);
+  } catch (e) {
+    // On error, don't show the banner — better to miss it than show incorrectly
+    state.iplTonight = false;
+  }
+}
+
+function showIPLBanner(matchName) {
+  const banner    = document.getElementById('iplBanner');
+  const titleEl   = banner.querySelector('.ipl-title');
+  const msgEl     = banner.querySelector('.ipl-msg');
+  const hour      = new Date().getHours();
+  const liveTag   = (hour >= 19 && hour <= 23) ? ' 🔴 LIVE NOW' : ' — Tonight';
+  titleEl.innerHTML = `🏏 IPL Night Mode Active${liveTag}`
+    + (matchName ? ` &mdash; <em>${matchName}</em>` : ' &mdash; RCB at Chinnaswamy');
+  if (hour >= 21) {
+    msgEl.textContent = 'Match is wrapping up! Expect heavy traffic near MG Road, Brigade Road & Residency Road for the next 45–60 min.';
+  } else {
+    msgEl.textContent = 'Expect heavy post-match traffic near MG Road, Brigade Road, Cubbon Park & Residency Road from ~10 PM. Plan to leave before 9:45 PM or after 11:30 PM.';
+  }
+  banner.classList.add('show');
+}
+
+// ════════════════════════════════════════════════
+// SETUP
+// ════════════════════════════════════════════════
+function toggleSetup() {
+  document.getElementById('setupPanel').classList.toggle('open');
+}
+function saveKeys() {
+  const gmaps  = document.getElementById('gmapsKey').value.trim();
+  const gemini = document.getElementById('geminiKey').value.trim();
+  const cric   = document.getElementById('cricKey').value.trim();
+  if (gmaps)  { localStorage.setItem('gmaps_key',  gmaps);  state.gmapsKey  = gmaps; }
+  if (gemini) { localStorage.setItem('gemini_key', gemini); state.geminiKey = gemini; }
+  if (cric)   { localStorage.setItem('cric_key',   cric);   state.cricKey   = cric;  }
+  updateSetupStatus();
+  const msg = document.getElementById('saveMsg');
+  msg.style.display = 'block';
+  setTimeout(() => {
+    msg.style.display = 'none';
+    document.getElementById('setupPanel').classList.remove('open');
+  }, 1600);
+}
+function updateSetupStatus() {
+  const el = document.getElementById('setupStatus');
+  const m  = !!state.gmapsKey, g = !!state.geminiKey;
+  if (m && g)      { el.textContent = '· \u2713 configured';        el.style.color = 'var(--good)'; }
+  else if (m || g) { el.textContent = '· partially configured'; el.style.color = 'var(--warn)'; }
+  else             { el.textContent = '· not configured';        el.style.color = 'var(--warn)'; }
+}
+
+// ════════════════════════════════════════════════
+// ORS API
+// ════════════════════════════════════════════════
+async function geocode(text) {
+  if (!state.gmapsKey) throw new Error('Google Maps API key not set. Click \u2699\ufe0f API Setup above.');
+  const url = `${GMAPS_BASE}/geocode/json`
+    + `?address=${encodeURIComponent(text + ', Bangalore, India')}`
+    + `&key=${encodeURIComponent(state.gmapsKey)}&region=in`;
+  const res  = await fetch(url);
+  if (!res.ok) throw new Error(`Geocoding failed (${res.status}). Try again.`);
+  const data = await res.json();
+  if (data.status === 'ZERO_RESULTS')
+    throw new Error(`Location not found: "${text}". Try a more specific name.`);
+  if (data.status === 'REQUEST_DENIED')
+    throw new Error('Google Maps key denied. Enable Geocoding API at console.cloud.google.com/apis.');
+  if (data.status !== 'OK')
+    throw new Error(`Geocoding error (${data.status}). Check your API key.`);
+  const loc = data.results[0].geometry.location;
+  return [loc.lng, loc.lat]; // [lon, lat]
+}
+
+async function fetchRoutes(srcCoords, dstCoords) {
+  if (!state.gmapsKey) throw new Error('Google Maps API key not set.');
+  const res = await fetch(GMAPS_ROUTES, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Goog-Api-Key': state.gmapsKey,
+      'X-Goog-FieldMask': 'routes.duration,routes.distanceMeters,routes.legs.steps.navigationInstruction,routes.legs.steps.distanceMeters'
+    },
+    body: JSON.stringify({
+      origin:      { location: { latLng: { latitude: srcCoords[1], longitude: srcCoords[0] } } },
+      destination: { location: { latLng: { latitude: dstCoords[1], longitude: dstCoords[0] } } },
+      travelMode:  'DRIVE',
+      routingPreference: 'TRAFFIC_AWARE',
+      computeAlternativeRoutes: true,
+      languageCode: 'en-IN',
+      units: 'METRIC'
+    })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    if (res.status === 401 || res.status === 403)
+      throw new Error('Invalid Google Maps API key. Check your key in \u2699\ufe0f API Setup. Make sure Routes API is enabled.');
+    throw new Error(`Route fetch failed (${res.status}): ${err.error?.message || 'Please try again.'}`);
+  }
+  return res.json();
+}
+
+// ════════════════════════════════════════════════
+// GEMINI API
+// ════════════════════════════════════════════════
+async function callGeminiAPI(systemText, contents, retries = 3) {
+  for (let attempt = 0; attempt < retries; attempt++) {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(state.geminiKey)}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: systemText }] },
+          contents
+        })
+      }
+    );
+    if (res.ok) return res.json();
+    const err = await res.json().catch(() => ({}));
+    if (res.status === 429) {
+      // Rate limited — wait and retry
+      const waitSecs = (attempt + 1) * 8;
+      const typingEls = document.querySelectorAll('.msg-typing');
+      typingEls.forEach(el => { el.textContent = `\u23F3 Rate limited. Retrying in ${waitSecs}s...`; });
+      await new Promise(r => setTimeout(r, waitSecs * 1000));
+      continue;
+    }
+    if (res.status === 400 || res.status === 401 || res.status === 403) {
+      throw new Error(
+        'Gemini key issue. Make sure the \'Generative Language API\' is enabled in your ' +
+        'Google Cloud project at console.cloud.google.com/apis. Then verify your key in \u2699\ufe0f API Setup.'
+      );
+    }
+    throw new Error(`Gemini error (${res.status}): ${err.error?.message || 'Please try again.'}`);
+  }
+  throw new Error('Still rate-limited after retries. Please wait ~1 minute and try again.');
+}
+
+async function askGemini(userMsg) {
+  if (!state.geminiKey) throw new Error('Gemini API key not set. Click \u2699\ufe0f API Setup above.');
+  const now  = new Date();
+  const info = getTrafficInfo(state.multiplier);
+  const systemText = [
+    'You are a friendly, knowledgeable traffic assistant for Bangalore, India.',
+    'You know Bangalore roads, shortcuts, and peak-hour patterns extremely well.',
+    `Current time: ${now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})},`,
+    `${now.toLocaleDateString('en-IN',{weekday:'long'})}.`,
+    `Current city traffic: ${info.desc}.`,
+    state.src && state.dst ? `User route: ${state.src} \u2192 ${state.dst}.` : '',
+    state.bestTime ? `Fastest option right now: ~${state.bestTime} min.` : '',
+    isIPLNight() ? 'RCB IPL match tonight at M. Chinnaswamy. Post-match surge near MG Road and Brigade Road.' : '',
+    'Keep answers under 3\u20134 sentences. Be conversational, practical, and specific to Bangalore.'
+  ].filter(Boolean).join(' ');
+
+  const contents = [
+    ...state.chatHistory.slice(-8),
+    { role: 'user', parts: [{ text: userMsg }] }
+  ];
+
+  const data  = await callGeminiAPI(systemText, contents);
+  const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!reply) throw new Error('No response received from Gemini. Please try again.');
+  state.chatHistory.push({ role: 'user',  parts: [{ text: userMsg }] });
+  state.chatHistory.push({ role: 'model', parts: [{ text: reply   }] });
+  return reply;
+}
+
+// ════════════════════════════════════════════════
+// FIND ROUTE — main action
+// ════════════════════════════════════════════════
+async function findRoute() {
+  const src   = document.getElementById('source').value.trim();
+  const dst   = document.getElementById('destination').value.trim();
+  const errEl = document.getElementById('findError');
+  errEl.style.display = 'none';
+
+  if (!src || !dst)     { showError(errEl, 'Please enter both source and destination.');                                  return; }
+  if (!state.gmapsKey) { showError(errEl, 'Please set up your Google Maps API key first. Click \u2699\ufe0f API Setup above.'); return; }
+
+  const btn     = document.getElementById('findBtn');
+  btn.disabled  = true;
+  btn.innerHTML = '<span class="spinner"></span>Finding routes...';
+
+  try {
+    const [srcCoords, dstCoords] = await Promise.all([geocode(src), geocode(dst)]);
+    const data   = await fetchRoutes(srcCoords, dstCoords);
+    const routes = data.routes || [];
+    if (routes.length === 0) throw new Error('No routes found between these locations.');
+
+    state._rawRoutes = routes; // preserve original for step lookup
+
+    state.routes = routes
+      .map((r, i) => ({
+        index:    i,
+        baseSecs: parseInt(r.duration),            // "1234s" → 1234 seconds
+        distM:    r.distanceMeters,
+        estMins:  Math.round(parseInt(r.duration) / 60), // live traffic already included
+        distKm:   (r.distanceMeters / 1000).toFixed(1),
+        via:      extractVia(r)
+      }))
+      .sort((a, b) => a.estMins - b.estMins);
+
+    state.bestTime = state.routes[0].estMins;
+    state.src = src;
+    state.dst = dst;
+
+    renderResults(src, dst);
+    saveJourney(src, dst, state.bestTime);
+    renderHistory();
+  } catch (e) {
+    showError(errEl, e.message);
+  } finally {
+    btn.disabled  = false;
+    btn.innerHTML = '\uD83D\uDDFA Find Best Route';
+  }
+}
+
+function showError(el, msg) {
+  el.textContent   = '\u26A0\uFE0F ' + msg;
+  el.style.display = 'block';
+}
+
+// ════════════════════════════════════════════════
+// RENDER RESULTS
+// ════════════════════════════════════════════════
+// Extract top major road names from Google Maps navigation instructions
+function extractVia(route) {
+  const steps = route.legs?.[0]?.steps || [];
+  const seen  = new Set();
+  const roads = [];
+  for (const step of steps) {
+    const instr = step.navigationInstruction?.instructions || '';
+    const dist  = step.distanceMeters || 0;
+    if (dist < 300) continue;
+    // Extract road name after "onto" or "on" — e.g. "Turn right onto MG Road"
+    const match = instr.match(/\b(?:onto|on)\s+(.+?)(?:\s+toward\b|\s+\(|\s*$)/i);
+    if (!match) continue;
+    const name = match[1].trim();
+    if (!name || seen.has(name)) continue;
+    seen.add(name);
+    roads.push({ name, dist });
+  }
+  roads.sort((a, b) => b.dist - a.dist);
+  const top = roads.slice(0, 2).map(r => r.name);
+  return top.length ? 'via ' + top.join(' → ') : '';
+}
+
+function renderResults(src, dst) {
+  document.getElementById('routesTripLabel').textContent = `\u2014 ${src} \u2192 ${dst}`;
+
+  const names = ['Route 1', 'Route 2', 'Route 3'];
+  document.getElementById('routesGrid').innerHTML = state.routes.map((r, i) => `
+    <div class="route-chip ${i === 0 ? 'best-route' : ''}" onclick="highlightRoute(${i})" style="cursor:pointer">
+      <div class="rc-label">${names[i] || 'Route ' + (i + 1)}</div>
+      <div class="rc-time">${r.estMins} min</div>
+      <div class="rc-dist">${r.distKm} km</div>
+      ${r.via ? `<div class="rc-via">${r.via}</div>` : ''}
+      ${i === 0 ? '<div class="rc-best">\u2713 Fastest</div>' : ''}
+    </div>`).join('');
+
+  // Route detail panel — default to Route 1
+  renderRouteDetail(0);
+}
+
+const GMAPS_MANEUVER_ICONS = {
+  'TURN_LEFT':'←', 'TURN_SLIGHT_LEFT':'↖', 'TURN_SHARP_LEFT':'↙', 'UTURN_LEFT':'↩',
+  'TURN_RIGHT':'→', 'TURN_SLIGHT_RIGHT':'↗', 'TURN_SHARP_RIGHT':'↘', 'UTURN_RIGHT':'↪',
+  'STRAIGHT':'↑', 'MERGE':'↑', 'HEAD_ON':'↑', 'NAME_CHANGE':'→',
+  'RAMP_LEFT':'↙', 'RAMP_RIGHT':'↗', 'FORK_LEFT':'↖', 'FORK_RIGHT':'↗',
+  'ROUNDABOUT_LEFT':'⟲', 'ROUNDABOUT_RIGHT':'⟳',
+  'DEPART':'📍', 'ARRIVE':'🏁', 'FERRY':'⛴'
+};
+
+function isIPLNight() { return !!state.iplTonight; }
+
+function highlightRoute(idx) {
+  // Update chip highlighting
+  document.querySelectorAll('.route-chip').forEach((el, i) => {
+    el.classList.toggle('best-route', i === idx);
+  });
+  renderRouteDetail(idx);
+}
+
+function renderRouteDetail(idx) {
+  const r      = state.routes[idx];
+  const panel  = document.getElementById('routeDetail');
+  if (!r) { panel.classList.remove('show'); return; }
+
+  // Get raw Google Maps route (unsorted index)
+  const rawRoute = state._rawRoutes?.[r.index];
+  const steps    = rawRoute?.legs?.[0]?.steps || [];
+
+  // Extract road name from a Google Maps navigation instruction string
+  function roadFromInstruction(instr) {
+    const m = (instr || '').match(/\b(?:onto|on)\s+(.+?)(?:\s+toward\b|\s+\(|\s*$)/i);
+    return m ? m[1].trim() : null;
+  }
+
+  // Collect meaningful steps with distinct road names
+  const named = [];
+  const seen  = new Set();
+  for (const s of steps) {
+    const instr = s.navigationInstruction?.instructions || '';
+    const dist  = s.distanceMeters || 0;
+    if (dist < 100) continue;
+    const name = roadFromInstruction(instr);
+    if (!name || seen.has(name)) continue;
+    seen.add(name);
+    named.push({ name, dist, maneuver: s.navigationInstruction?.maneuver || '' });
+  }
+
+  // Show top 6 by distance, in order of appearance
+  const top = [...named].sort((a, b) => b.dist - a.dist).slice(0, 6)
+    .sort((a, b) => named.indexOf(a) - named.indexOf(b));
+
+  const names = ['Route 1', 'Route 2', 'Route 3'];
+  const stepsHTML = top.length
+    ? top.map(s => {
+        const icon = GMAPS_MANEUVER_ICONS[s.maneuver] || '↑';
+        const dist = s.dist >= 1000
+          ? (s.dist / 1000).toFixed(1) + ' km'
+          : Math.round(s.dist) + ' m';
+        return `<div class="rd-step">
+          <span class="rd-step-icon">${icon}</span>
+          <span class="rd-step-name">${s.name}</span>
+          <span class="rd-step-dist">${dist}</span>
+        </div>`;
+      }).join('')
+    : '<div style="color:var(--muted);font-size:0.78rem;">Road details not available for this route.</div>';
+
+  panel.innerHTML = `
+    <div class="rd-header">
+      🛣️ ${names[idx]} — Key Roads (${r.distKm} km &middot; ~${r.estMins} min)
+      ${r.via ? `<span style="font-weight:400;color:var(--muted);font-size:0.75rem;">${r.via}</span>` : ''}
+    </div>
+    <div class="rd-steps">${stepsHTML}</div>`;
+  panel.classList.add('show');
+
+  const m = state.multiplier;
+  let icon, msg;
+  if (m < 1.25) {
+    icon = '🟢';
+    msg  = 'Roads are looking clear right now. Live Google Maps traffic is reflected in all times shown.';
+  } else if (m < 1.65) {
+    icon = '🟡';
+    msg  = 'Moderate traffic conditions. Times shown already include real-time Bangalore traffic via Google Maps.';
+  } else if (m < 2.15) {
+    icon = '🟠';
+    msg  = "It's busy out there — times shown account for current heavy traffic via Google Maps live data.";
+  } else {
+    icon = '🔴';
+    msg  = 'Peak rush hour! Live times shown — consider waiting 30–40 min for conditions to ease.';
+  }
+  if (isIPLNight() && new Date().getHours() >= 17) {
+    msg += ' <strong>IPL alert:</strong> Post-match surge expected near Chinnaswamy — factor in extra time if your route passes MG Road or Brigade Road.';
+  }
+
+  document.getElementById('trafficContext').innerHTML =
+    `<div class="tc-icon">${icon}</div><div class="tc-text">${msg}</div>`;
+
+  const sec = document.getElementById('resultsSection');
+  sec.classList.add('show');
+  sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ════════════════════════════════════════════════
+// LEAVE-BY CALCULATOR
+// ════════════════════════════════════════════════
+function calcLeaveBy() {
+  const timeVal  = document.getElementById('arrivalTime').value;
+  const resultEl = document.getElementById('leaveByResult');
+  if (!timeVal || !state.bestTime) {
+    resultEl.innerHTML = 'Please find a route first, then enter your desired arrival time.';
+    resultEl.classList.add('show');
+    return;
+  }
+  const [h, m]    = timeVal.split(':').map(Number);
+  const arrMins   = h * 60 + m;
+  const leaveMins = arrMins - state.bestTime - 5; // 5-min buffer
+  if (leaveMins < 0) {
+    resultEl.innerHTML = '\u26A0\uFE0F That arrival time is too soon given current traffic conditions.';
+    resultEl.classList.add('show');
+    return;
+  }
+  const str = `${String(Math.floor(leaveMins / 60)).padStart(2,'0')}:${String(leaveMins % 60).padStart(2,'0')}`;
+  const now = new Date();
+  const minsLeft = leaveMins - (now.getHours() * 60 + now.getMinutes());
+  let urgency;
+  if (minsLeft < 0)        urgency = `<strong style="color:var(--danger)">You're running late!</strong> Leave immediately.`;
+  else if (minsLeft < 10)  urgency = `<strong style="color:var(--danger)">Leave right now!</strong> Only ${minsLeft} min left.`;
+  else if (minsLeft < 30)  urgency = `<strong style="color:var(--warn)">Leave in ~${minsLeft} minutes.</strong>`;
+  else                     urgency = `You have <strong>${minsLeft} minutes</strong> before you need to leave.`;
+  resultEl.innerHTML = `Leave by <strong>${str}</strong> to arrive by ${timeVal} (5-min buffer included). ${urgency}`;
+  resultEl.classList.add('show');
+}
+
+// ════════════════════════════════════════════════
+// GEMINI CHAT
+// ════════════════════════════════════════════════
+async function sendChat() {
+  const input = document.getElementById('chatInput');
+  const msg   = input.value.trim();
+  if (!msg) return;
+  if (!state.geminiKey) {
+    appendBotMsg('Please set up your Gemini API key first \u2014 click \u2699\ufe0f API Setup at the top.');
+    return;
+  }
+  const messagesEl = document.getElementById('chatMessages');
+  const empty = messagesEl.querySelector('.chat-empty');
+  if (empty) empty.remove();
+  appendUserMsg(msg);
+  input.value = '';
+  const typingEl = appendBotMsg('Thinking...', true);
+  const sendBtn  = document.getElementById('sendBtn');
+  sendBtn.disabled = true;
+  try {
+    const reply = await askGemini(msg);
+    typingEl.textContent = reply;
+    typingEl.classList.remove('msg-typing');
+  } catch (e) {
+    typingEl.textContent = '\u26A0\uFE0F ' + e.message;
+    typingEl.classList.remove('msg-typing');
+  } finally {
+    sendBtn.disabled = false;
+    input.focus();
+  }
+}
+
+function appendUserMsg(text) {
+  const el = document.createElement('div');
+  el.className   = 'msg msg-user';
+  el.textContent = text;
+  const c = document.getElementById('chatMessages');
+  c.appendChild(el);
+  c.scrollTop = c.scrollHeight;
+  return el;
+}
+
+function appendBotMsg(text, isTyping = false) {
+  const el = document.createElement('div');
+  el.className   = `msg msg-bot${isTyping ? ' msg-typing' : ''}`;
+  el.textContent = text;
+  const c = document.getElementById('chatMessages');
+  c.appendChild(el);
+  c.scrollTop = c.scrollHeight;
+  return el;
+}
+
+// ════════════════════════════════════════════════
+// JOURNEY HISTORY
+// ════════════════════════════════════════════════
+function saveJourney(src, dst, mins) {
+  const history = JSON.parse(localStorage.getItem('blr_journey_history') || '[]');
+  history.unshift({
+    src, dst, mins,
+    time: new Date().toLocaleString('en-IN', { hour: '2-digit', minute: '2-digit', month: 'short', day: 'numeric' }),
+    day:  new Date().toLocaleDateString('en-IN', { weekday: 'short' })
+  });
+  localStorage.setItem('blr_journey_history', JSON.stringify(history.slice(0, 12)));
+}
+
+function renderHistory() {
+  const history = JSON.parse(localStorage.getItem('blr_journey_history') || '[]');
+  const list    = document.getElementById('historyList');
+  if (history.length === 0) {
+    list.innerHTML = '<div class="history-empty">No journeys recorded yet. Search a route above!</div>';
+    return;
+  }
+  list.innerHTML = history.map(h => `
+    <div class="history-item">
+      <div>
+        <div class="hi-route">${h.src} \u2192 ${h.dst}</div>
+        <div class="hi-meta">${h.day} &middot; ${h.time}</div>
+      </div>
+      <div class="hi-time">~${h.mins} min</div>
+    </div>`).join('');
+}
+
+function clearHistory() {
+  if (!confirm('Clear all journey history?')) return;
+  localStorage.removeItem('blr_journey_history');
+  renderHistory();
+}
+
+// ════════════════════════════════════════════════
+// VOICE INPUT
+// ════════════════════════════════════════════════
+let activeVoiceBtn = null;
+
+function startVoice(inputId, btnId) {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { alert('Voice input requires Chrome or Edge.'); return; }
+  const sr = new SR();
+  sr.lang = 'en-IN';
+  sr.interimResults  = false;
+  sr.maxAlternatives = 1;
+  if (btnId) {
+    const btn = document.getElementById(btnId);
+    btn.classList.add('recording');
+    activeVoiceBtn = btn;
+  }
+  sr.onresult = (e) => {
+    document.getElementById(inputId).value = e.results[0][0].transcript;
+    if (activeVoiceBtn) { activeVoiceBtn.classList.remove('recording'); activeVoiceBtn = null; }
+  };
+  sr.onerror = sr.onend = () => {
+    if (activeVoiceBtn) { activeVoiceBtn.classList.remove('recording'); activeVoiceBtn = null; }
+  };
+  sr.start();
+}
+
+// ════════════════════════════════════════════════
+// TIPS TICKER
+// ════════════════════════════════════════════════
+let tipIdx = 0;
+function rotateTips() {
+  const el = document.getElementById('tipText');
+  el.style.opacity = '0';
+  setTimeout(() => { el.textContent = TIPS[tipIdx % TIPS.length]; el.style.opacity = '1'; tipIdx++; }, 400);
+}
+
+// ════════════════════════════════════════════════
+// API KEY TESTING
+// ════════════════════════════════════════════════
+function setTestResult(elId, btnId, status, msg) {
+  const el  = document.getElementById(elId);
+  const btn = document.getElementById(btnId);
+  el.className   = `test-result show test-${status}`;
+  el.textContent = msg;
+  if (btn) btn.disabled = false;
+}
+
+async function testGMaps() {
+  const key = document.getElementById('gmapsKey').value.trim();
+  if (!key) { setTestResult('gmapsTestResult', 'testGMapsBtn', 'fail', '⚠️ Please paste your Google Maps key first.'); return; }
+  const btn = document.getElementById('testGMapsBtn');
+  btn.disabled = true;
+  setTestResult('gmapsTestResult', null, 'wait', '⏳ Testing Google Maps key...');
+  try {
+    const url = `${GMAPS_BASE}/geocode/json?address=Bangalore%2CIndia&key=${encodeURIComponent(key)}`;
+    const res  = await fetch(url);
+    const data = await res.json();
+    if (data.status === 'OK') {
+      const found = data.results?.[0]?.formatted_address || 'Bangalore, India';
+      setTestResult('gmapsTestResult', 'testGMapsBtn', 'ok', `✓ Valid! Geocoding works — found: "${found}"`);
+    } else if (data.status === 'REQUEST_DENIED') {
+      setTestResult('gmapsTestResult', 'testGMapsBtn', 'fail',
+        '✗ Request denied — enable Geocoding API, Routes API, and Places API (New) at console.cloud.google.com/apis/library.');
+    } else {
+      setTestResult('gmapsTestResult', 'testGMapsBtn', 'fail',
+        `✗ Google Maps returned: ${data.status}. Double-check your key.`);
+    }
+  } catch (e) {
+    setTestResult('gmapsTestResult', 'testGMapsBtn', 'fail', '✗ Network error — check your internet connection.');
+  }
+}
+
+async function testGemini() {
+  const key = document.getElementById('geminiKey').value.trim();
+  if (!key) { setTestResult('geminiTestResult', 'testGeminiBtn', 'fail', '⚠️ Please paste your Gemini key first.'); return; }
+  const btn = document.getElementById('testGeminiBtn');
+  btn.disabled = true;
+  setTestResult('geminiTestResult', null, 'wait', '⏳ Testing Gemini key...');
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(key)}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: 'Reply with just the word: OK' }] }] })
+      }
+    );
+    if (res.ok) {
+      const data  = await res.json();
+      const reply = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '(response received)';
+      setTestResult('geminiTestResult', 'testGeminiBtn', 'ok', `✓ Valid! Gemini responded: "${reply}"`);
+    } else {
+      const err = await res.json().catch(() => ({}));
+      if (res.status === 429) {
+        setTestResult('geminiTestResult', 'testGeminiBtn', 'fail',
+          '✗ Rate limited (429) — your key works but you\'ve hit the per-minute quota. Wait ~60 seconds and test again.');
+      } else if (res.status === 400 && err.error?.message?.includes('API_KEY_INVALID')) {
+        setTestResult('geminiTestResult', 'testGeminiBtn', 'fail',
+          '✗ Invalid key — Gemini says API_KEY_INVALID. Double-check at aistudio.google.com.');
+      } else if (res.status === 403) {
+        setTestResult('geminiTestResult', 'testGeminiBtn', 'fail',
+          '✗ Access denied (403) — the Generative Language API may not be enabled. Go to console.cloud.google.com/apis/library and enable it.');
+      } else {
+        setTestResult('geminiTestResult', 'testGeminiBtn', 'fail',
+          `✗ Gemini returned HTTP ${res.status}: ${err.error?.message || 'Unknown error'}`);
+      }
+    }
+  } catch (e) {
+    setTestResult('geminiTestResult', 'testGeminiBtn', 'fail', '✗ Network error — check your internet connection.');
+  }
+}
+
+async function testCricAPI() {
+  const key = document.getElementById('cricKey').value.trim();
+  if (!key) { setTestResult('cricTestResult', 'testCricBtn', 'fail', '⚠️ Please paste your CricAPI key first.'); return; }
+  const btn = document.getElementById('testCricBtn');
+  btn.disabled = true;
+  setTestResult('cricTestResult', null, 'wait', '⏳ Testing CricAPI key...');
+  try {
+    const res  = await fetch(`${CRICAPI_BASE}/matches?apikey=${encodeURIComponent(key)}&offset=0`);
+    const data = await res.json();
+    if (data.status === 'success' || Array.isArray(data.data)) {
+      setTestResult('cricTestResult', 'testCricBtn', 'ok', `✓ Valid! CricAPI connected (${data.data?.length ?? 0} matches returned).`);
+    } else if (data.status === 'failure' && data.reason) {
+      setTestResult('cricTestResult', 'testCricBtn', 'fail', `✗ CricAPI error: ${data.reason}`);
+    } else {
+      setTestResult('cricTestResult', 'testCricBtn', 'fail', '✗ Unexpected response. Check your key at cricapi.com.');
+    }
+  } catch (e) {
+    setTestResult('cricTestResult', 'testCricBtn', 'fail', '✗ Network error — check your internet connection.');
+  }
+}
+
+async function testBoth() {
+  document.getElementById('setupPanel').classList.add('open');
+  await Promise.all([testGMaps(), testGemini()]);
+}
+
+// ════════════════════════════════════════════════
+// AUTOCOMPLETE (ORS /geocode/autocomplete)
+// ════════════════════════════════════════════════
+const acTimers = {};
+const acCache  = {};
+
+async function acFetch(text) {
+  if (!state.gmapsKey) return [];
+  if (acCache[text]) return acCache[text];
+  try {
+    const res = await fetch(GMAPS_PLACES, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Goog-Api-Key': state.gmapsKey,
+        'X-Goog-FieldMask': 'suggestions.placePrediction.text,suggestions.placePrediction.structuredFormat'
+      },
+      body: JSON.stringify({
+        input: text,
+        locationBias: { circle: { center: { latitude: BLORE.lat, longitude: BLORE.lon }, radius: 50000.0 } },
+        includedRegionCodes: ['IN'],
+        languageCode: 'en-IN'
+      })
+    });
+    if (!res.ok) return [];
+    const data    = await res.json();
+    const results = (data.suggestions || []).map(s => {
+      const pred = s.placePrediction;
+      return {
+        label:    pred.text?.text || '',
+        name:     pred.structuredFormat?.mainText?.text || pred.text?.text || '',
+        locality: pred.structuredFormat?.secondaryText?.text || ''
+      };
+    });
+    acCache[text] = results;
+    return results;
+  } catch { return []; }
+}
+
+function acInput(inputId, dropId) {
+  const val = document.getElementById(inputId).value.trim();
+  clearTimeout(acTimers[inputId]);
+  if (val.length < 2) { acClose(dropId); return; }
+  acTimers[inputId] = setTimeout(async () => {
+    const results = await acFetch(val);
+    acRender(inputId, dropId, results, val);
+  }, 280);
+}
+
+function highlightMatch(text, query) {
+  const idx = text.toLowerCase().indexOf(query.toLowerCase());
+  if (idx === -1) return text;
+  return text.slice(0, idx)
+    + `<span class="ac-match">${text.slice(idx, idx + query.length)}</span>`
+    + text.slice(idx + query.length);
+}
+
+function acRender(inputId, dropId, results, query) {
+  const drop = document.getElementById(dropId);
+  if (!results.length) { acClose(dropId); return; }
+  drop.innerHTML = results.map((r, i) => `
+    <li class="ac-item" data-idx="${i}"
+        onmousedown="acSelect('${inputId}','${dropId}',${i})"
+        onmouseover="acActivate('${dropId}',${i})">
+      <span class="ac-item-icon">📍</span>
+      <span class="ac-item-text">
+        <div class="ac-name">${highlightMatch(r.name, query)}</div>
+        ${r.locality ? `<div class="ac-addr">${r.locality}</div>` : ''}
+      </span>
+    </li>`).join('');
+  drop._results = results;
+  drop._active  = -1;
+  drop.classList.add('open');
+}
+
+function acSelect(inputId, dropId, idx) {
+  const drop = document.getElementById(dropId);
+  const item = drop._results?.[idx];
+  if (!item) return;
+  document.getElementById(inputId).value = item.label;
+  acClose(dropId);
+}
+
+function acActivate(dropId, idx) {
+  const drop  = document.getElementById(dropId);
+  drop._active = idx;
+  drop.querySelectorAll('.ac-item').forEach((el, i) =>
+    el.classList.toggle('active', i === idx));
+}
+
+function acKey(e, dropId) {
+  const drop = document.getElementById(dropId);
+  if (!drop.classList.contains('open')) return;
+  const items = drop.querySelectorAll('.ac-item');
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    drop._active = Math.min((drop._active ?? -1) + 1, items.length - 1);
+    items.forEach((el, i) => el.classList.toggle('active', i === drop._active));
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    drop._active = Math.max((drop._active ?? 0) - 1, 0);
+    items.forEach((el, i) => el.classList.toggle('active', i === drop._active));
+  } else if (e.key === 'Enter' && drop._active >= 0) {
+    e.preventDefault();
+    const inputId = dropId === 'acSrc' ? 'source' : 'destination';
+    acSelect(inputId, dropId, drop._active);
+  } else if (e.key === 'Escape') {
+    acClose(dropId);
+  }
+}
+
+function acClose(dropId) {
+  const drop = document.getElementById(dropId);
+  if (drop) { drop.classList.remove('open'); drop.innerHTML = ''; }
+}
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', e => {
+  if (!e.target.closest('.ac-wrap')) {
+    acClose('acSrc');
+    acClose('acDst');
+  }
+});
+
+// Boot
+init();
+
+// Register service worker for PWA
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .catch(() => {}); // Silently fail if SW not supported
+  });
+}
+</script>
+</body>
+</html>

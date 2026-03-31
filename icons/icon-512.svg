@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="100" fill="#3B6FF0"/>
+  <rect width="512" height="512" rx="100" fill="url(#grad)" opacity="0.3"/>
+  <defs>
+    <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#818CF8"/>
+      <stop offset="100%" stop-color="#3B6FF0" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <!-- Traffic light housing -->
+  <rect x="188" y="72" width="136" height="310" rx="36" fill="#0F172A"/>
+  <!-- Red light -->
+  <circle cx="256" cy="144" r="42" fill="#EF4444" opacity="0.35"/>
+  <circle cx="256" cy="144" r="32" fill="#EF4444"/>
+  <!-- Amber light -->
+  <circle cx="256" cy="230" r="42" fill="#F59E0B" opacity="0.35"/>
+  <circle cx="256" cy="230" r="32" fill="#F59E0B"/>
+  <!-- Green light (active) -->
+  <circle cx="256" cy="316" r="42" fill="#22C55E" opacity="0.35"/>
+  <circle cx="256" cy="316" r="32" fill="#22C55E"/>
+  <circle cx="244" cy="304" r="8" fill="#FFFFFF" opacity="0.5"/>
+  <!-- Pole -->
+  <rect x="240" y="382" width="32" height="58" rx="10" fill="#0F172A"/>
+  <rect x="192" y="432" width="128" height="22" rx="10" fill="#0F172A"/>
+</svg>

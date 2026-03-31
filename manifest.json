@@ -1,0 +1,32 @@
+{
+  "name": "BLR Smart Traffic Assistant",
+  "short_name": "BLR Traffic",
+  "description": "Real-time Bangalore traffic routing with Google Maps and Gemini AI",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#F4F7FF",
+  "theme_color": "#3B6FF0",
+  "orientation": "portrait-primary",
+  "categories": ["navigation", "travel", "utilities"],
+  "icons": [
+    {
+      "src": "icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
